@@ -1,0 +1,941 @@
+{
+	"info": {
+		"_postman_id": "62962b48-86f4-4359-abf1-4326a032d401",
+		"name": "OPTIK_150k",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "{{base_url}}admin/login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\" : \"kasir\",\r\n    \"password\" : \"kasir\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}admin/login",
+							"host": [
+								"{{base_url}}admin"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}admin/register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\" : \"kasir\", \r\n    \"password\" : \"kasir\", \r\n    \"name\" : \"KASIR NAMA\", \r\n    \"role\" : \"kasir\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}admin/register",
+							"host": [
+								"{{base_url}}admin"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "{{base_url}}admin/register",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\" : \"kasir\", \r\n    \"password\" : \"kasir\", \r\n    \"name\" : \"KASIR NAMA\", \r\n    \"role\" : \"kasir\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}admin/register",
+									"host": [
+										"{{base_url}}admin"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "37"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"25-XSdiv7qHNdBXmlTjcVedrJZHypM\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 13 Feb 2023 13:59:43 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"message\": \"OK\",\n    \"data\": {}\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "{{base_url}}product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\" : \"kasir\", \r\n    \"password\" : \"kasir\", \r\n    \"name\" : \"KASIR NAMA\", \r\n    \"role\" : \"kasir\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}product",
+							"host": [
+								"{{base_url}}product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}product?size=2&page=2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}product",
+							"host": [
+								"{{base_url}}product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}product/:uuid",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}product/f96f3d71-396a-4ff1-8def-ab3fb84b08e8",
+							"host": [
+								"{{base_url}}product"
+							],
+							"path": [
+								"f96f3d71-396a-4ff1-8def-ab3fb84b08e8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}product/:uuid",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}product/f96f3d71-396a-4ff1-8def-ab3fb84b08e8",
+							"host": [
+								"{{base_url}}product"
+							],
+							"path": [
+								"f96f3d71-396a-4ff1-8def-ab3fb84b08e8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}product/:uuid",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA HITAM NS-250 EDIT\",\r\n      \"uom\" :\"buah\",\r\n      \"capital_price\" : 5000,\r\n      \"price\" : 8000,\r\n      \"stock\" : 100,\r\n      \"min_stock\" : 5,\r\n      \"category_id\" : 2,\r\n      \"serial_number\" : \"LENSA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}product/f96f3d71-396a-4ff1-8def-ab3fb84b08e8",
+							"host": [
+								"{{base_url}}product"
+							],
+							"path": [
+								"f96f3d71-396a-4ff1-8def-ab3fb84b08e8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "{{base_url}}category",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}category",
+							"host": [
+								"{{base_url}}category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}category/:uuid",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}category/01345a39-a2db-483d-b24a-c81cc2dd89a6",
+							"host": [
+								"{{base_url}}category"
+							],
+							"path": [
+								"01345a39-a2db-483d-b24a-c81cc2dd89a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}category/:uuid",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category_name\" : \"PEMBERSIH EDIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}category/01345a39-a2db-483d-b24a-c81cc2dd89a6",
+							"host": [
+								"{{base_url}}category"
+							],
+							"path": [
+								"01345a39-a2db-483d-b24a-c81cc2dd89a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category_name\" : \"PEMBERSIH\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}category",
+							"host": [
+								"{{base_url}}category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}category/:uuid",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}category/01345a39-a2db-483d-b24a-c81cc2dd89a6",
+							"host": [
+								"{{base_url}}category"
+							],
+							"path": [
+								"01345a39-a2db-483d-b24a-c81cc2dd89a6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cabang",
+			"item": [
+				{
+					"name": "{{base_url}}cabang",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cabang",
+							"host": [
+								"{{base_url}}cabang"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}cabang/:uuid",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cabang/a48535d6-018b-4f7b-b265-bf24af727df9",
+							"host": [
+								"{{base_url}}cabang"
+							],
+							"path": [
+								"a48535d6-018b-4f7b-b265-bf24af727df9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}cabang",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nama_cabang\" : \"CABANG G\", \r\n    \"alamat\" : \"Jl. AR. HAKIM\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cabang",
+							"host": [
+								"{{base_url}}cabang"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}cabang/:uuid",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cabang/a48535d6-018b-4f7b-b265-bf24af727df9",
+							"host": [
+								"{{base_url}}cabang"
+							],
+							"path": [
+								"a48535d6-018b-4f7b-b265-bf24af727df9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}cabang/:uuid",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nama_cabang\" : \"CABANG D EDIT\", \r\n    \"alamat\" : \"Jl. Sutrisno\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cabang/a48535d6-018b-4f7b-b265-bf24af727df9",
+							"host": [
+								"{{base_url}}cabang"
+							],
+							"path": [
+								"a48535d6-018b-4f7b-b265-bf24af727df9"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "{{base_url}}customer",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}customer",
+							"host": [
+								"{{base_url}}customer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}customer/:uuid Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}customer/f69d18ac-47de-4ae1-af0e-41965f6af704",
+							"host": [
+								"{{base_url}}customer"
+							],
+							"path": [
+								"f69d18ac-47de-4ae1-af0e-41965f6af704"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}customer/:uuid",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customer_name\" : \"Muharis\", \r\n    \"no_hp\" : \"085725525122\", \r\n    \"alamat\" : \"Jl. Pajak Bunga\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}customer/f69d18ac-47de-4ae1-af0e-41965f6af704",
+							"host": [
+								"{{base_url}}customer"
+							],
+							"path": [
+								"f69d18ac-47de-4ae1-af0e-41965f6af704"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customer_name\" : \"Fariz\", \r\n    \"no_hp\" : \"0812341565854\", \r\n    \"alamat\" : \"Jl. Cemara\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}customer",
+							"host": [
+								"{{base_url}}customer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}customer/:uuid",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}customer/f69d18ac-47de-4ae1-af0e-41965f6af704",
+							"host": [
+								"{{base_url}}customer"
+							],
+							"path": [
+								"f69d18ac-47de-4ae1-af0e-41965f6af704"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cara Bayar",
+			"item": [
+				{
+					"name": "{{base_url}}cara-bayar",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cara-bayar",
+							"host": [
+								"{{base_url}}cara-bayar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}cara-bayar/:uuid",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cara-bayar/8bd69ff7-e5b3-405f-a65b-9aeb323f4c35",
+							"host": [
+								"{{base_url}}cara-bayar"
+							],
+							"path": [
+								"8bd69ff7-e5b3-405f-a65b-9aeb323f4c35"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}cara-bayar/:uuid",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cara_bayar_name\" : \"OVO EDIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cara-bayar/8bd69ff7-e5b3-405f-a65b-9aeb323f4c35",
+							"host": [
+								"{{base_url}}cara-bayar"
+							],
+							"path": [
+								"8bd69ff7-e5b3-405f-a65b-9aeb323f4c35"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}cara-bayar/:uuid",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cara_bayar_name\" : \"OVO EDIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cara-bayar/8bd69ff7-e5b3-405f-a65b-9aeb323f4c35",
+							"host": [
+								"{{base_url}}cara-bayar"
+							],
+							"path": [
+								"8bd69ff7-e5b3-405f-a65b-9aeb323f4c35"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}cara-bayar",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cara_bayar_name\" : \"LINK\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}cara-bayar",
+							"host": [
+								"{{base_url}}cara-bayar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Kwitansi",
+			"item": [
+				{
+					"name": "{{base_url}}kwitansi",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}kwitansi",
+							"host": [
+								"{{base_url}}kwitansi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}kwitansi",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"amount\" : 500000,\r\n    \"price\" : 15000,\r\n    \"employee\" : \"Kasir CE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}kwitansi",
+							"host": [
+								"{{base_url}}kwitansi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}kwitansi/:uuid",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_name\" : \"KACAMATA BLACK-250\", \r\n    \"uom\" : \"buah\", \r\n    \"capital_price\" : 18000, \r\n    \"price\" : 25000,\r\n    \"stock\" : 100,\r\n    \"min_stock\" : 5,\r\n    \"category_id\" : 52,\r\n    \"serial_number\" : \"KACAMATA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}kwitansi/a39f1cd9-270f-4bfc-8037-4f9c34627ab7",
+							"host": [
+								"{{base_url}}kwitansi"
+							],
+							"path": [
+								"a39f1cd9-270f-4bfc-8037-4f9c34627ab7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}kwitansi/:uuid",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"amount\" : 400000,\r\n    \"price\" : 25000,\r\n    \"employee\" : \"Kasir CE EDIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}kwitansi/a39f1cd9-270f-4bfc-8037-4f9c34627ab7",
+							"host": [
+								"{{base_url}}kwitansi"
+							],
+							"path": [
+								"a39f1cd9-270f-4bfc-8037-4f9c34627ab7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{base_url}}kwitansi/:uuid",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"amount\" : 400000,\r\n    \"price\" : 25000,\r\n    \"employee\" : \"Kasir CE EDIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}kwitansi/a39f1cd9-270f-4bfc-8037-4f9c34627ab7",
+							"host": [
+								"{{base_url}}kwitansi"
+							],
+							"path": [
+								"a39f1cd9-270f-4bfc-8037-4f9c34627ab7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
