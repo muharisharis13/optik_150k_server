@@ -24,18 +24,18 @@ class ControllerProduct {
     try {
       const getCountProduct = await ProductModel.findAndCountAll({
         limit: 1,
-        order: [["product_code", "DESC"]],
+        order: [["productCode", "DESC"]],
       });
       const { count, rows } = getCountProduct;
       let new_code = count + 1;
 
-      var product_code = "BR" + new_code?.toString().padStart(7, "0");
-      if (rows[0].product_code == product_code) {
+      var productCode = "BR" + new_code?.toString().padStart(7, "0");
+      if (rows[0].productCode == productCode) {
         let product_code_new =
-          parseInt(rows[0].product_code?.split("BR")[1]) + 1;
+          parseInt(rows[0].productCode?.split("BR")[1]) + 1;
         product_code_new = "BR" + product_code_new?.toString().padStart(7, "0");
         await ProductModel.create({
-          product_code: product_code_new,
+          productCode: product_code_new,
           product_name,
           uom,
           capital_price,
@@ -50,7 +50,7 @@ class ControllerProduct {
             code: 200,
             message: status[200],
             data: filterObject(result, [
-              "product_code",
+              "productCode",
               "product_name",
               "capital_price",
               "createdAt",
@@ -60,7 +60,7 @@ class ControllerProduct {
         });
       } else {
         await ProductModel.create({
-          product_code,
+          productCode,
           product_name,
           uom,
           capital_price,
@@ -75,7 +75,7 @@ class ControllerProduct {
             code: 200,
             message: status[200],
             data: filterObject(result, [
-              "product_code",
+              "productCode",
               "product_name",
               "capital_price",
               "createdAt",
