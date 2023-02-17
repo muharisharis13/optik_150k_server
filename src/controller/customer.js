@@ -13,13 +13,16 @@ class ControllerCustomer {
       limit: 1,
       order: [["kdCustomer", "DESC"]],
     });
-    const { count } = getCountCustomer;
-    let new_code = count + 1;
+    const { rows } = getCountCustomer;
+    console.log({ rows });
+    let new_customer_code =
+      parseInt(rows[0]?.kdCustomer?.split("C-")[1] || 0) + 1;
 
-    var kdCustomer = "C-" + new_code?.toString().padStart(6, "0");
+    new_customer_code = "C-" + new_customer_code?.toString().padStart(6, "0");
+
     try {
       await CustomerModel.create({
-        kdCustomer,
+        kdCustomer: new_customer_code,
         customer_name,
         no_hp,
         alamat,
@@ -28,7 +31,7 @@ class ControllerCustomer {
         responseJSON({ res, status: 200, data: result });
       });
     } catch (error) {
-      responseJSON({ res, status: 500, data: result });
+      responseJSON({ res, status: 500, data: error });
     }
   };
 
@@ -108,7 +111,9 @@ class ControllerCustomer {
       });
 
       const updateCustomer = await getDetailCustomer.update({
-        customer_name, no_hp, alamat,
+        customer_name,
+        no_hp,
+        alamat,
       });
 
       responseJSON({ res, status: 200, data: updateCustomer });

@@ -42,7 +42,7 @@ class ControllerProduct {
           price,
           stock,
           min_stock,
-          category_id,
+          categoryId: category_id,
           serial_number,
           uuid: uuidv4(),
         }).then((result) => {
@@ -59,15 +59,18 @@ class ControllerProduct {
           });
         });
       } else {
+        let product_code_new =
+          parseInt(rows[0].product_code?.split("BR")[1]) + 1;
+        product_code_new = "BR" + product_code_new?.toString().padStart(7, "0");
         await ProductModel.create({
-          product_code,
+          product_code: product_code_new,
           product_name,
           uom,
           capital_price,
           price,
           stock,
           min_stock,
-          category_id,
+          categoryId: category_id,
           serial_number,
           uuid: uuidv4(),
         }).then((result) => {
@@ -113,7 +116,7 @@ class ControllerProduct {
           {
             model: CategoryModel,
             as: "category",
-            attributes: ["id","category_name"],
+            attributes: ["id", "category_name"],
           },
         ],
         limit,
@@ -142,7 +145,7 @@ class ControllerProduct {
           {
             model: CategoryModel,
             as: "category",
-            attributes: ["id","category_name"],
+            attributes: ["id", "category_name"],
           },
         ],
       });
@@ -204,7 +207,7 @@ class ControllerProduct {
         price,
         stock,
         min_stock,
-        category_id,
+        categoryId: category_id,
         serial_number,
       });
 
