@@ -1,4 +1,8 @@
-const { TransaksiCabangModel, CategoryModel } = require("../models");
+const {
+  TransaksiCabangModel,
+  CategoryModel,
+  TransaksiCabangDetailModel,
+} = require("../models");
 const status = require("http-status");
 const {
   filterObject,
@@ -6,18 +10,16 @@ const {
   paging: { getPagination, getPagingData },
 } = require("../../utils");
 const { v4: uuidv4 } = require("uuid");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 
 class ControllerTransaksiCabang {
   addTransaksiCabang = async (req, res) => {
     const {
-      total,
+      total_transaksi_cabang,
       uang1,
       uang2,
       uang_total,
-      kurang_total,
-      kembalian_total,
-      uuid_cabang,
+      cabangId,
       payment_method1,
       payment_method2,
       discount,
@@ -30,83 +32,64 @@ class ControllerTransaksiCabang {
     }
     var year = dateObj.getUTCFullYear();
     var transaksi_date = `${year}-${month}-${date}`;
+    var date_ = `${date}${month}${year}`;
 
     try {
-      const getCountTransaksiCabang = await TransaksiCabangModel.findAndCountAll({
+      const getCountTransaksi = await TransaksiCabangModel.findAndCountAll({
+        where: Sequelize.where(
+          Sequelize.fn("date", Sequelize.col("createdAt")),
+          "=",
+          transaksi_date
+        ), // Select createdAt as format date YYYY-MM-DD
         limit: 1,
-        order: [["transaksiNo", "DESC"]],
+        order: [["no_faktur", "DESC"]],
       });
-      const { count, rows } = getCountTransaksiCabang;
-      let new_code = count + 1;
+      const { count, rows } = getCountTransaksi;
+      let countTransaksi = count + 1;
+      var transaksiNo = countTransaksi?.toString().padStart(6, "0");
+      var no_faktur = date_ + transaksiNo;
+      var transaksi_status = "KREDIT";
 
-      var transaksiNo = "KD-" + new_code?.toString().padStart(7, "0");
-      if (rows[0].transaksiNo == transaksiNo) {
-        let product_code_new =
-          parseInt(rows[0].transaksiNo?.split("BR")[1]) + 1;
-        product_code_new = "BR" + product_code_new?.toString().padStart(7, "0");
-        await TransaksiCabangModel.create({
-          transaksiNo: product_code_new,
-          transaksi_date,
-          total,
-          uang1,
-          uang2,
-          uang_total,
-          kurang_total,
-          kembalian_total,
-          uuid_cabang,
-          payment_method1,
-          payment_method2,
-          discount,
-          uuid: uuidv4(),
-        }).then((result) => {
-          res.status(200).json({
-            code: 200,
-            message: status[200],
-            data: filterObject(result, [
-              "transaksiNo",
-              "product_name",
-              "capital_price",
-              "createdAt",
-              "updatedAt",
-            ]),
-          });
-        });
-      } else {
-        await TransaksiCabangModel.create({
-          transaksiNo,
-          product_name,
-          uom,
-          capital_price,
-          price,
-          stock,
-          min_stock,
-          category_id,
-          serial_number,
-          uuid: uuidv4(),
-        }).then((result) => {
-          res.status(200).json({
-            code: 200,
-            message: status[200],
-            data: filterObject(result, [
-              "transaksiNo",
-              "product_name",
-              "capital_price",
-              "createdAt",
-              "updatedAt",
-            ]),
-          });
-        });
-      }
-    } catch (error) {
-      res.status(400).json({
-        code: 400,
-        data: error.errors?.map((item) => ({
-          path: item.path,
-          type: item.type,
-          validatorKey: item.validatorKey,
-        })),
-        message: status[400],
+      // Generate Surat Jalan
+      const getSuratJalan = await TransaksiCabangModel.findAndCountAll({
+        limit: 1,
+        order: [["surat_jalan", "DESC"]],
+        where: {
+          ["surat_jalan"]: {
+            [Op.like]: `%${"/" + month + "/" + year}%`,
+          },
+        },
       });
+      const { count: count_sj, rows: rows_sj } = getSuratJalan;
+
+      let countSj = 0;
+      if (count_sj == 0) {
+        countSj++;
+      } else {
+        countSj = parseInt(rows_sj[0].surat_jalan?.split("/")[3]) + 1;
+      }
+      countSj = countSj?.toString().padStart(5, "0");
+
+      var surat_jalan = "SJ" + date_ + "/" + month + "/" + year + "/" + countSj;
+
+      await TransaksiCabangModel.create({
+        total_transaksi_cabang,
+        no_faktur,
+        uang1,
+        uang2,
+        uang_total,
+        cabangId,
+        payment_method1,
+        payment_method2,
+        discount,
+        surat_jalan,
+        transaksi_status,
+        uuid: uuidv4(),
+      }).then((result) => {
+        responseJSON({ res, status: 200, data: result });
+      });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
     }
   };
 
@@ -144,19 +127,22 @@ class ControllerTransaksiCabang {
         where: {
           uuid: uuid,
         },
-        include: [
-          {
-            model: CategoryModel,
-            as: "category",
-            attributes: ["id", "category_name"],
-          },
-        ],
       });
+
+      const getListTransaksiCabangDetail =
+        await TransaksiCabangDetailModel.findAll({
+          where: {
+            transaksiCabangId: getTransaksiCabang?.id,
+          },
+        });
 
       responseJSON({
         res,
         status: 200,
-        data: getTransaksiCabang,
+        data: {
+          dataInfo: getTransaksiCabang,
+          listProduct: getListTransaksiCabangDetail,
+        },
       });
     } catch (error) {
       responseJSON({ res, status: 500, data: error });
@@ -186,16 +172,18 @@ class ControllerTransaksiCabang {
   updateTransaksiCabang = async (req, res) => {
     const { uuid } = req.params;
     const {
-      product_name,
-      uom,
-      capital_price,
-      price,
-      stock,
-      min_stock,
-      category_id,
-      serial_number,
+      total_transaksi_cabang,
+      uang1,
+      uang2,
+      uang_total,
+      cabangId,
+      payment_method1,
+      payment_method2,
+      discount,
+      transaksi_status
     } = req.body;
 
+    transaksi_status ?? "KREDIT";
     try {
       const getDetailTransaksiCabang = await TransaksiCabangModel.findOne({
         where: {
@@ -204,14 +192,15 @@ class ControllerTransaksiCabang {
       });
 
       const updateTransaksiCabang = await getDetailTransaksiCabang.update({
-        product_name,
-        uom,
-        capital_price,
-        price,
-        stock,
-        min_stock,
-        category_id,
-        serial_number,
+        total_transaksi_cabang,
+        uang1,
+        uang2,
+        uang_total,
+        cabangId,
+        payment_method1,
+        payment_method2,
+        discount,
+        transaksi_status
       });
 
       responseJSON({ res, status: 200, data: updateTransaksiCabang });

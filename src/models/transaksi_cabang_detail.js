@@ -9,22 +9,23 @@ const transaksi_cabang_detail = database.define(
       unique: true,
       allowNull: false,
     },
-    transaksiNo: {
+    transaksiCabangId: {
       type: STRING(100),
       allowNull: false,
-      unique: true,
+      unique: false,
       validate: {
         notNull: true,
       },
     },
-    productCode: { type: STRING(100), allowNull: false },
+    productId: { type: STRING(100), allowNull: false },
     qty: { type: INTEGER, allowNull: false },
-    discount: { type: INTEGER, allowNull: false },
-    total: { type: INTEGER, allowNull: false },
+    price: { type: INTEGER, allowNull: false },
+    discount: { type: INTEGER, allowNull: true },
+    subtotal: { type: INTEGER, allowNull: false },
   },
   { timestamps: true, freezeTableName: true }
 );
 
-transaksi_cabang_detail.sync();
+transaksi_cabang_detail.sync({force:false});
 
 module.exports = transaksi_cabang_detail;

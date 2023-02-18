@@ -1,4 +1,4 @@
-const { STRING,  TEXT, DATEONLY, INTEGER } = require("sequelize");
+const { STRING,  TEXT,DATE , INTEGER } = require("sequelize");
 const database = require("../../database");
 
 const beli = database.define(
@@ -9,7 +9,7 @@ const beli = database.define(
       unique: true,
       allowNull: false,
     },
-    beli_faktur: {
+    no_faktur_beli: {
       type: STRING(100),
       allowNull: false,
       unique: true,
@@ -18,7 +18,7 @@ const beli = database.define(
       },
     },
     beli_tanggal:{
-        type:DATEONLY,
+        type:DATE,
         allowNull : false
     },
     supplierId:{
@@ -29,6 +29,6 @@ const beli = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
-beli.sync()
+beli.sync({force:false})
 
 module.exports = beli

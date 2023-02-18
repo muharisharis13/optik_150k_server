@@ -1,4 +1,4 @@
-const { BeliModel } = require("../models");
+const { BeliModel, BeliDetailModel } = require("../models");
 const {
   responseJSON,
   paging: { getPagination, getPagingData },
@@ -8,10 +8,21 @@ const { Op } = require("sequelize");
 
 class ControllerBeli {
   addBeli = async (req, res) => {
-    const { beli_faktur, beli_tanggal, supplierId } = req.body;
+    const { beli_tanggal, supplierId } = req.body;
+    const getCountBeli = await BeliModel.findAndCountAll({
+      limit: 1,
+      order: [["no_faktur_beli", "DESC"]],
+    });
+    const { count, rows } = getCountBeli;
+
+    
+      let beli_faktur_new =
+        parseInt(rows[0].no_faktur_beli?.split("BI-")[1] || 0) + 1;
+      var no_faktur_beli = "BI-" + beli_faktur_new?.toString().padStart(7, "0");
+   
     try {
       await BeliModel.create({
-        beli_faktur,
+        no_faktur_beli,
         beli_tanggal,
         supplierId,
         uuid: uuidv4(),
@@ -59,10 +70,19 @@ class ControllerBeli {
         },
       });
 
+      const getListBeliDetail = await BeliDetailModel.findAll({
+        where: {
+          beliId: getDetailBeli?.id,
+        },
+      });
+
       responseJSON({
         res,
         status: 200,
-        data: getDetailBeli,
+        data: {
+          dataInfo: getDetailBeli,
+          listProduct: getListBeliDetail,
+        },
       });
     } catch (error) {
       responseJSON({ res, status: 500, data: error });

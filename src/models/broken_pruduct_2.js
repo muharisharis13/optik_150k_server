@@ -1,21 +1,18 @@
 const { STRING, TEXT, DATEONLY, INTEGER, INET } = require("sequelize");
 const database = require("../../database");
+const product = require("./product");
 
 const broken_product = database.define(
-  "broken_product",
+  "broken_product_2",
   {
     uuid: {
       type: TEXT,
       unique: true,
       allowNull: false,
     },
-    productCode: {
+    productId: {
       type: STRING(100),
       allowNull: false,
-      unique: true,
-      validate: {
-        notNull: true,
-      },
     },
     qty: {
       type: INTEGER,
@@ -25,20 +22,16 @@ const broken_product = database.define(
       type: TEXT,
       allowNull: false,
     },
-    broken_date: {
-      type: DATEONLY,
-      allowNull: false,
-    },
   },
   { timestamps: true, freezeTableName: true }
 );
 
-broken_product.sync();
+broken_product.sync({ force: false });
 
-// CategoryModel.hasMany(broken_product,{
-//   foreignKey:"categoryId"
-// })
+product.hasMany(broken_product, {
+  foreignKey: "productId",
+});
 
-// broken_product.belongsTo(CategoryModel)
+broken_product.belongsTo(product);
 
 module.exports = broken_product;

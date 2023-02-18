@@ -1,4 +1,8 @@
-const { TransaksiModel, CategoryModel } = require("../models");
+const {
+  TransaksiModel,
+  CategoryModel,
+  TransaksiDetailModel,
+} = require("../models");
 const status = require("http-status");
 const {
   filterObject,
@@ -6,22 +10,21 @@ const {
   paging: { getPagination, getPagingData },
 } = require("../../utils");
 const { v4: uuidv4 } = require("uuid");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 
 class ControllerTransaksi {
   addTransaksi = async (req, res) => {
     const {
-      total,
+      total_transaksi,
       uang1,
       uang2,
-      uang_total,
-      kurang_total,
-      kembalian_total,
-      uuid_user,
+      total_uang,
+      customerId,
       payment_method1,
       payment_method2,
       discount,
     } = req.body;
+
     var dateObj = new Date();
     var month = dateObj.getUTCMonth() + 1; //months from 1-12
     var date = dateObj.getDate();
@@ -30,83 +33,41 @@ class ControllerTransaksi {
     }
     var year = dateObj.getUTCFullYear();
     var transaksi_date = `${year}-${month}-${date}`;
+    var date_ = `${date}${month}${year}`;
 
     try {
       const getCountTransaksi = await TransaksiModel.findAndCountAll({
+        where: Sequelize.where(
+          Sequelize.fn("date", Sequelize.col("createdAt")),
+          "=",
+          transaksi_date
+        ), // Select createdAt as format date YYYY-MM-DD
         limit: 1,
-        order: [["transaksiNo", "DESC"]],
+        order: [["no_faktur", "DESC"]],
       });
       const { count, rows } = getCountTransaksi;
-      let new_code = count + 1;
+      let countTransaksi = count + 1;
+      var transaksiNo = countTransaksi?.toString().padStart(6, "0");
+      var no_faktur = date_ + transaksiNo;
+      var transaksi_status = "COMPLETE";
 
-      var transaksiNo = "KD-" + new_code?.toString().padStart(7, "0");
-      if (rows[0].transaksiNo == transaksiNo) {
-        let product_code_new =
-          parseInt(rows[0].transaksiNo?.split("BR")[1]) + 1;
-        product_code_new = "BR" + product_code_new?.toString().padStart(7, "0");
-        await TransaksiModel.create({
-          transaksiNo: product_code_new,
-          transaksi_date,
-          total,
-          uang1,
-          uang2,
-          uang_total,
-          kurang_total,
-          kembalian_total,
-          uuid_user,
-          payment_method1,
-          payment_method2,
-          discount,
-          uuid: uuidv4(),
-        }).then((result) => {
-          res.status(200).json({
-            code: 200,
-            message: status[200],
-            data: filterObject(result, [
-              "transaksiNo",
-              "product_name",
-              "capital_price",
-              "createdAt",
-              "updatedAt",
-            ]),
-          });
-        });
-      } else {
-        await TransaksiModel.create({
-          transaksiNo,
-          product_name,
-          uom,
-          capital_price,
-          price,
-          stock,
-          min_stock,
-          category_id,
-          serial_number,
-          uuid: uuidv4(),
-        }).then((result) => {
-          res.status(200).json({
-            code: 200,
-            message: status[200],
-            data: filterObject(result, [
-              "transaksiNo",
-              "product_name",
-              "capital_price",
-              "createdAt",
-              "updatedAt",
-            ]),
-          });
-        });
-      }
-    } catch (error) {
-      res.status(400).json({
-        code: 400,
-        data: error.errors?.map((item) => ({
-          path: item.path,
-          type: item.type,
-          validatorKey: item.validatorKey,
-        })),
-        message: status[400],
+      await TransaksiModel.create({
+        no_faktur,
+        total_transaksi,
+        uang1,
+        uang2,
+        total_uang,
+        customerId,
+        payment_method1,
+        payment_method2,
+        transaksi_status,
+        discount,
+        uuid: uuidv4(),
+      }).then((result) => {
+        responseJSON({ res, status: 200, data: result });
       });
+    } catch (error) {
+      responseJSON({ res, status: 400, data: error });
     }
   };
 
@@ -144,19 +105,20 @@ class ControllerTransaksi {
         where: {
           uuid: uuid,
         },
-        include: [
-          {
-            model: CategoryModel,
-            as: "category",
-            attributes: ["id", "category_name"],
-          },
-        ],
       });
 
+      const getListTransaksiDetail = await TransaksiDetailModel.findAll({
+        where: {
+          transaksiId: getTransaksi?.id,
+        },
+      });
       responseJSON({
         res,
         status: 200,
-        data: getTransaksi,
+        data: {
+          data_info: getTransaksi,
+          listProduct: getListTransaksiDetail,
+        },
       });
     } catch (error) {
       responseJSON({ res, status: 500, data: error });
@@ -186,14 +148,15 @@ class ControllerTransaksi {
   updateTransaksi = async (req, res) => {
     const { uuid } = req.params;
     const {
-      product_name,
-      uom,
-      capital_price,
-      price,
-      stock,
-      min_stock,
-      category_id,
-      serial_number,
+      total_transaksi,
+      uang1,
+      uang2,
+      total_uang,
+      customerId,
+      payment_method1,
+      payment_method2,
+      discount,
+      transaksi_status,
     } = req.body;
 
     try {
@@ -203,15 +166,18 @@ class ControllerTransaksi {
         },
       });
 
+      transaksi_status = transaksi_status ?? "COMPLETE";
+
       const updateTransaksi = await getDetailTransaksi.update({
-        product_name,
-        uom,
-        capital_price,
-        price,
-        stock,
-        min_stock,
-        category_id,
-        serial_number,
+        total_transaksi,
+        uang1,
+        uang2,
+        total_uang,
+        customerId,
+        payment_method1,
+        payment_method2,
+        discount,
+        transaksi_status,
       });
 
       responseJSON({ res, status: 200, data: updateTransaksi });

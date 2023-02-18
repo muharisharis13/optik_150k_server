@@ -17,7 +17,7 @@ const transaksi_cabang = database.define(
       unique: true,
       allowNull: false,
     },
-    transaksiNo: {
+    no_faktur: {
       type: STRING(100),
       allowNull: false,
       unique: true,
@@ -25,17 +25,14 @@ const transaksi_cabang = database.define(
         notNull: true,
       },
     },
-    transaksi_date: { type: DATEONLY, allowNull: false },
-    total: { type: INTEGER, allowNull: false },
+    total_transaksi_cabang: { type: INTEGER, allowNull: false },
     uang1: { type: INTEGER, allowNull: false },
     uang2: { type: INTEGER, allowNull: false },
     uang_total: { type: INTEGER, allowNull: false },
-    kurang_total: { type: INTEGER, allowNull: false },
-    kembalian_total: { type: INTEGER, allowNull: false },
-    uuid_cabang: { type: STRING(100), allowNull: false },
+    cabangId: { type: INTEGER, allowNull: false },
     payment_method1: { type: STRING(100), allowNull: false },
     payment_method2: { type: STRING(100), allowNull: true },
-    discount: { type: INTEGER, allowNull: false },
+    discount: { type: INTEGER, allowNull: true },
     surat_jalan: { type: STRING(100), allowNull: true },
     transaksi_status: {
       type: ENUM(["COMPLETE", "CANCEL", "DP", "KREDIT"]),
@@ -45,6 +42,6 @@ const transaksi_cabang = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
-transaksi_cabang.sync();
+transaksi_cabang.sync({force:false});
 
 module.exports = transaksi_cabang;

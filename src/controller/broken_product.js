@@ -1,4 +1,7 @@
-const { BrokenProductModel } = require("../models");
+const {
+  BrokenProductModel2: BrokenProductModel,
+  ProductModel,
+} = require("../models");
 const {
   responseJSON,
   paging: { getPagination, getPagingData },
@@ -8,13 +11,12 @@ const { Op } = require("sequelize");
 
 class ControllerBrokenProduct {
   addBrokenProduct = async (req, res) => {
-    const { productCode, qty, notes, broken_date } = req.body;
+    const { productId, qty, notes } = req.body;
     try {
       await BrokenProductModel.create({
-        productCode,
+        productId,
         qty,
         notes,
-        broken_date,
         uuid: uuidv4(),
       }).then((result) => {
         responseJSON({ res, status: 200, data: result });
@@ -25,17 +27,29 @@ class ControllerBrokenProduct {
   };
 
   getListBrokenProduct = async (req, res) => {
-    const { page = 1, size = 10, column_name = "id", query = "" } = req.query;
+    const {
+      page = 1,
+      size = 10,
+      column_name = "product.product_name",
+      query = "",
+    } = req.query;
     const { limit, offset } = getPagination(page, size);
 
     const condition = {
-      [column_name]: {
+      [`$${column_name}$`]: {
         [Op.like]: `%${query ?? ""}%`,
       },
     };
     try {
       const getProduct = await BrokenProductModel.findAndCountAll({
         where: condition,
+        include: [
+          {
+            model: ProductModel,
+            as: "product",
+            attributes: ["id", "uuid", "product_name", "productCode"],
+          },
+        ],
         limit,
         offset,
         order: [["id", "DESC"]],
@@ -58,6 +72,13 @@ class ControllerBrokenProduct {
         where: {
           uuid,
         },
+        include: [
+          {
+            model: ProductModel,
+            as: "product",
+            attributes: ["id", "uuid", "product_name", "productCode"],
+          },
+        ],
       });
 
       responseJSON({
@@ -91,7 +112,7 @@ class ControllerBrokenProduct {
 
   updateBrokenProduct = async (req, res) => {
     const { uuid } = req.params;
-    const { productCode, qty, notes, broken_date } = req.body;
+    const { productId, qty, notes } = req.body;
     try {
       const getDetailBrokenProduct = await BrokenProductModel.findOne({
         where: {
@@ -100,15 +121,14 @@ class ControllerBrokenProduct {
       });
 
       const updateBrokenProduct = await getDetailBrokenProduct.update({
-        productCode,
+        productId,
         qty,
         notes,
-        broken_date,
       });
 
       responseJSON({ res, status: 200, data: updateBrokenProduct });
     } catch (error) {
-      responseJSON({ res, status: 500, data: result });
+      responseJSON({ res, status: 500, data: error });
     }
   };
 }

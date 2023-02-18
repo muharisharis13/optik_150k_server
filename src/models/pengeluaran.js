@@ -21,10 +21,6 @@ const pengeluaran = database.define(
       type: INTEGER,
       allowNull: false,
     },
-    pengeluaran_date: {
-      type: DATE,
-      allowNull: false,
-    },
     keterangan: {
       type: TEXT,
       allowNull: false,
@@ -37,6 +33,6 @@ const pengeluaran = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
-pengeluaran.sync();
+pengeluaran.sync({ force: false });
 
 module.exports = pengeluaran;

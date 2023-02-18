@@ -9,15 +9,15 @@ const beli_detail = database.define(
       unique: true,
       allowNull: false,
     },
-    beli_faktur: {
+    beliId: {
       type: STRING(100),
       allowNull: false,
-      unique: true,
+      unique: false,
       validate: {
         notNull: true,
       },
     },
-    productCode: {
+    productId: {
       type: STRING(100),
       allowNull: false,
     },
@@ -29,7 +29,7 @@ const beli_detail = database.define(
       type: INTEGER,
       allowNull: false,
     },
-    total: {
+    subtotal: {
       type: INTEGER,
       allowNull: false,
     },
@@ -37,6 +37,6 @@ const beli_detail = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
-beli_detail.sync();
+beli_detail.sync({force:false});
 
 module.exports = beli_detail;

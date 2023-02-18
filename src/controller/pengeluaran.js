@@ -8,40 +8,12 @@ const { Op } = require("sequelize");
 
 class ControllerPengeluaran {
   addPengeluaran = async (req, res) => {
-    const { amount, price, employee } = req.body;
-
-    var dateObj = new Date();
-    var month = dateObj.getUTCMonth() + 1; //months from 1-12
-    if (month < 10) {
-      month = "0" + month;
-    }
-    var year = dateObj.getUTCFullYear();
-
-    const getCountPengeluaran = await PengeluaranModel.findAndCountAll({
-      limit: 1,
-      order: [["kwitansi_code", "DESC"]],
-      where: {
-        ["kwitansi_code"]: {
-          [Op.like]: `%${"/" + month + "/" + year}%`,
-        },
-      },
-    });
-    const { count, rows } = getCountPengeluaran;
-
-    let countKwi = 0;
-    if (count == 0) {
-      countKwi++;
-    } else {
-      countKwi = parseInt(rows[0].kwitansi_code?.split("/")[1]) + 1;
-    }
-    countKwi = countKwi?.toString().padStart(5, "0");
-
-    var kwitansi_code = "KWI/" + countKwi + "/" + month + "/" + year;
+    const { jenis_pengeluaran,amount,  keterangan, employee } = req.body;
     try {
       await PengeluaranModel.create({
-        kwitansi_code,
+        jenis_pengeluaran,
         amount,
-        price,
+        keterangan,
         employee,
         uuid: uuidv4(),
       }).then((result) => {
@@ -119,7 +91,7 @@ class ControllerPengeluaran {
 
   updatePengeluaran = async (req, res) => {
     const { uuid } = req.params;
-    const { amount, price, employee } = req.body;
+    const { jenis_pengeluaran,amount,  keterangan, employee } = req.body;
     try {
       const getDetailPengeluaran = await PengeluaranModel.findOne({
         where: {
@@ -128,14 +100,15 @@ class ControllerPengeluaran {
       });
 
       const updatePengeluaran = await getDetailPengeluaran.update({
+        jenis_pengeluaran,
         amount,
-        price,
+        keterangan,
         employee,
       });
 
       responseJSON({ res, status: 200, data: updatePengeluaran });
     } catch (error) {
-      responseJSON({ res, status: 500, data: result });
+      responseJSON({ res, status: 500, data: error });
     }
   };
 }

@@ -16,6 +16,7 @@ const TransaksiDetailModel = require("./transaksi_detail")
 const TransaksiCabangModel = require("./transaksi_cabang")
 const TransaksiCabangDetailModel = require("./transaksi_cabang_detail")
 
+const BrokenProductModel2 = require("./broken_pruduct_2");
 module.exports = {
   AdminModel,
   TokenModel,
@@ -33,5 +34,6 @@ module.exports = {
   TransaksiModel,
   TransaksiDetailModel,
   TransaksiCabangModel,
-  TransaksiCabangDetailModel
+  TransaksiCabangDetailModel,
+  BrokenProductModel2
 };

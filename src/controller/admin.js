@@ -1,14 +1,15 @@
-const {
-  AdminModel: ModelAdmin,
-  TokenModel: ModelToken,
-} = require("../models");
+const { AdminModel: ModelAdmin, TokenModel: ModelToken } = require("../models");
 const status = require("http-status");
 const {
   hashPassword,
   filterObject,
   token: { createToken, createRefreshToken },
-  uuid
+  // uuid,
+  responseJSON,
 } = require("../../utils");
+const { v4: uuid } = require("uuid");
+const { getPagingData, getPagination } = require("../../utils/paging");
+const { Op } = require("sequelize");
 
 class ControllerAdmin {
   logout = async (req, res) => {
@@ -125,7 +126,7 @@ class ControllerAdmin {
         password: hashPassword(password),
         name,
         role,
-        uuid: uuid
+        uuid: uuid(),
       }).then((result) => {
         res.status(200).json({
           code: 200,
@@ -149,6 +150,93 @@ class ControllerAdmin {
         })),
         message: status[400],
       });
+    }
+  };
+
+  getListAdmin = async (req, res) => {
+    const { page = 1, size = 10, column_name = "id", query = "" } = req.query;
+    const { limit, offset } = getPagination(page, size);
+
+    const condition = {
+      [column_name]: {
+        [Op.like]: `%${query ?? ""}%`,
+      },
+    };
+    try {
+      const getAdmin = await ModelAdmin.findAndCountAll({
+        where: condition,
+        limit,
+        offset,
+        order: [["id", "DESC"]],
+      });
+
+      responseJSON({
+        res,
+        status: 200,
+        data: getPagingData(getAdmin, page, limit),
+      });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
+    }
+  };
+
+  deleteAdmin = async (req, res) => {
+    const { uuid } = req.params;
+    try {
+      const hapusAdmin = await ModelAdmin.destroy({
+        where: {
+          uuid,
+        },
+      });
+
+      responseJSON({
+        res,
+        status: 200,
+        data: hapusAdmin,
+      });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
+    }
+  };
+
+  updateAdmin = async (req, res) => {
+    const { uuid } = req.params;
+    const { name, username, role } = req.body;
+    try {
+      const getDetailAdmin = await ModelAdmin.findOne({
+        where: {
+          uuid,
+        },
+      });
+
+      const updateCategory = await getDetailAdmin.update({
+        name,
+        username,
+        role,
+      });
+
+      responseJSON({ res, status: 200, data: updateCategory });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: result });
+    }
+  };
+
+  getDetailAdmin = async (req, res) => {
+    const { uuid } = req.params;
+    try {
+      const getDetailAdmin = await ModelAdmin.findOne({
+        where: {
+          uuid,
+        },
+      });
+
+      responseJSON({
+        res,
+        status: 200,
+        data: getDetailAdmin,
+      });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
     }
   };
 }

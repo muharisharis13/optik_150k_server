@@ -10,11 +10,8 @@ const PengeluaranRouter = require("./pengeluaran")
 const BrokenProductRouter = require("./broken_product")
 const SupplierRouter = require("./supplier")
 const BeliRouter = require("./beli")
-const BeliDetailRouter = require("./beli_detail")
 const TransaksiRouter = require("./transaksi")
-const TransaksiDetailRouter = require("./transaksi_detail")
 const TransaksiCabangRouter = require("./transaksi_cabang")
-const TransaksiCabangDetailRouter = require("./transaksi_cabang_detail")
 const { base_path } = require("../../utils");
 
 const Routing = (app) => {
@@ -30,11 +27,8 @@ const Routing = (app) => {
   app.use(base_path("broken-product"), BrokenProductRouter)
   app.use(base_path("supplier"), SupplierRouter)
   app.use(base_path("beli"), BeliRouter)
-  app.use(base_path("beli-detail"), BeliDetailRouter)
   app.use(base_path("transaksi"), TransaksiRouter)
-  app.use(base_path("transaksi-detail"), TransaksiDetailRouter)
   app.use(base_path("transaksi-cabang"), TransaksiCabangRouter)
-  app.use(base_path("transaksi-cabang-detail"), TransaksiCabangDetailRouter)
 };
 
 module.exports = Routing;
