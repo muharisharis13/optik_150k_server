@@ -1,8 +1,16 @@
-const { STRING, DOUBLE, TEXT, ENUM, INTEGER, DATEONLY, INET } = require("sequelize");
+const {
+  STRING,
+  DOUBLE,
+  TEXT,
+  ENUM,
+  INTEGER,
+  DATEONLY,
+  INET,
+} = require("sequelize");
 const database = require("../../database");
 
-const transaksi = database.define(
-  "transaksi",
+const transaksi_cabang = database.define(
+  "transaksi_cabang",
   {
     uuid: {
       type: TEXT,
@@ -18,24 +26,25 @@ const transaksi = database.define(
       },
     },
     transaksi_date: { type: DATEONLY, allowNull: false },
-    transaksi_status: {
-      type: ENUM(["COMPLETE", "CANCEL", "DP", "KREDIT"]),
-      allowNull: false,
-    },
     total: { type: INTEGER, allowNull: false },
     uang1: { type: INTEGER, allowNull: false },
     uang2: { type: INTEGER, allowNull: false },
     uang_total: { type: INTEGER, allowNull: false },
     kurang_total: { type: INTEGER, allowNull: false },
     kembalian_total: { type: INTEGER, allowNull: false },
-    uuid_user: { type: STRING(100), allowNull: false },
+    uuid_cabang: { type: STRING(100), allowNull: false },
     payment_method1: { type: STRING(100), allowNull: false },
     payment_method2: { type: STRING(100), allowNull: true },
-    discount: {type : INTEGER, allowNull:false}
+    discount: { type: INTEGER, allowNull: false },
+    surat_jalan: { type: STRING(100), allowNull: true },
+    transaksi_status: {
+      type: ENUM(["COMPLETE", "CANCEL", "DP", "KREDIT"]),
+      allowNull: false,
+    },
   },
   { timestamps: true, freezeTableName: true }
 );
 
-transaksi.sync();
+transaksi_cabang.sync();
 
-module.exports = transaksi;
+module.exports = transaksi_cabang;

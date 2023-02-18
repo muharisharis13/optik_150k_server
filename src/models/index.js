@@ -11,6 +11,10 @@ const BrokenProductModel = require("./broken_pruduct")
 const SupplierModel = require("./supplier")
 const BeliModel = require("./beli")
 const BeliDetailModel = require("./beli_detail")
+const TransaksiModel = require("./transaksi")
+const TransaksiDetailModel = require("./transaksi_detail")
+const TransaksiCabangModel = require("./transaksi_cabang")
+const TransaksiCabangDetailModel = require("./transaksi_cabang_detail")
 
 module.exports = {
   AdminModel,
@@ -25,5 +29,9 @@ module.exports = {
   BrokenProductModel,
   SupplierModel,
   BeliModel,
-  BeliDetailModel
+  BeliDetailModel,
+  TransaksiModel,
+  TransaksiDetailModel,
+  TransaksiCabangModel,
+  TransaksiCabangDetailModel
 };
