@@ -1,11 +1,17 @@
 const AdminModel = require("./admin");
 const TokenModel = require("./token");
-const ProductModel = require("./product")
-const CategoryModel = require("./category")
-const CabangModel = require("./cabang")
-const CustomerModel = require("./customer")
-const CaraBayarModel = require("./cara_bayar")
-const KwitansiModel = require("./kwitansi")
+const ProductModel = require("./product");
+const CategoryModel = require("./category");
+const CabangModel = require("./cabang");
+const CustomerModel = require("./customer");
+const CaraBayarModel = require("./cara_bayar");
+const KwitansiModel = require("./kwitansi");
+const PengeluaranModel = require("./pengeluaran");
+const BrokenProductModel = require("./broken_pruduct");
+const SupplierModel = require("./supplier");
+const BeliModel = require("./beli");
+const BeliDetailModel = require("./beli_detail");
+const BrokenProductModel2 = require("./broken_pruduct_2");
 
 module.exports = {
   AdminModel,
@@ -15,5 +21,11 @@ module.exports = {
   CabangModel,
   CustomerModel,
   CaraBayarModel,
-  KwitansiModel
+  KwitansiModel,
+  PengeluaranModel,
+  BrokenProductModel,
+  SupplierModel,
+  BeliModel,
+  BeliDetailModel,
+  BrokenProductModel2,
 };

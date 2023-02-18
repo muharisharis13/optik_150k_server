@@ -10,7 +10,7 @@ const product = database.define(
       unique: true,
       allowNull: false,
     },
-    productCode: {
+    transaksiNo: {
       type: STRING(100),
       allowNull: false,
       unique: true,
@@ -19,7 +19,7 @@ const product = database.define(
       },
     },
     product_name: { type: STRING(100), allowNull: false },
-    uom: { type:  ENUM(["buah"]), allowNull: false },
+    status: { type:  ENUM(["COMPLETE","CANCEL","DP","KREDIT"]), allowNull: false },
     capital_price: { type:DOUBLE, allowNull: false },
     price: { type: DOUBLE, allowNull: false },
     stock: { type: INTEGER, allowNull: false },
@@ -33,10 +33,10 @@ const product = database.define(
 
 product.sync()
 
-CategoryModel.hasMany(product,{
-  foreignKey:"categoryId"
-})
+// CategoryModel.hasMany(product,{
+//   foreignKey:"categoryId"
+// })
 
-product.belongsTo(CategoryModel)
+// product.belongsTo(CategoryModel)
 
 module.exports = product

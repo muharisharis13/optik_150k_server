@@ -24,69 +24,38 @@ class ControllerProduct {
     try {
       const getCountProduct = await ProductModel.findAndCountAll({
         limit: 1,
-        order: [["product_code", "DESC"]],
+        order: [["productCode", "DESC"]],
       });
       const { count, rows } = getCountProduct;
-      let new_code = count + 1;
 
-      var product_code = "BR" + new_code?.toString().padStart(7, "0");
-      if (rows[0].product_code == product_code) {
-        let product_code_new =
-          parseInt(rows[0].product_code?.split("BR")[1]) + 1;
-        product_code_new = "BR" + product_code_new?.toString().padStart(7, "0");
-        await ProductModel.create({
-          product_code: product_code_new,
-          product_name,
-          uom,
-          capital_price,
-          price,
-          stock,
-          min_stock,
-          categoryId: category_id,
-          serial_number,
-          uuid: uuidv4(),
-        }).then((result) => {
-          res.status(200).json({
-            code: 200,
-            message: status[200],
-            data: filterObject(result, [
-              "product_code",
-              "product_name",
-              "capital_price",
-              "createdAt",
-              "updatedAt",
-            ]),
-          });
+      let product_code_new =
+        parseInt(rows[0].productCode?.split("BR")[1] || 0) + 1;
+      console.log({ product_code_new });
+      product_code_new = "BR" + product_code_new?.toString().padStart(7, "0");
+      await ProductModel.create({
+        productCode: product_code_new,
+        product_name,
+        uom,
+        capital_price,
+        price,
+        stock,
+        min_stock,
+        categoryId: category_id,
+        serial_number,
+        uuid: uuidv4(),
+      }).then((result) => {
+        res.status(200).json({
+          code: 200,
+          message: status[200],
+          data: filterObject(result, [
+            "productCode",
+            "product_name",
+            "capital_price",
+            "createdAt",
+            "updatedAt",
+          ]),
         });
-      } else {
-        let product_code_new =
-          parseInt(rows[0].product_code?.split("BR")[1]) + 1;
-        product_code_new = "BR" + product_code_new?.toString().padStart(7, "0");
-        await ProductModel.create({
-          product_code: product_code_new,
-          product_name,
-          uom,
-          capital_price,
-          price,
-          stock,
-          min_stock,
-          categoryId: category_id,
-          serial_number,
-          uuid: uuidv4(),
-        }).then((result) => {
-          res.status(200).json({
-            code: 200,
-            message: status[200],
-            data: filterObject(result, [
-              "product_code",
-              "product_name",
-              "capital_price",
-              "createdAt",
-              "updatedAt",
-            ]),
-          });
-        });
-      }
+      });
     } catch (error) {
       res.status(400).json({
         code: 400,
@@ -101,12 +70,17 @@ class ControllerProduct {
   };
 
   getListProduct = async (req, res) => {
-    const { page = 1, size = 10, column_name = "id", query = "" } = req.query;
+    const {
+      page = 1,
+      size = 10,
+      column_name = "product_name",
+      query = "",
+    } = req.query;
     const { limit, offset } = getPagination(page, size);
 
     const condition = {
-      [column_name]: {
-        [Op.like]: `%${query ?? ""}%`,
+      [`$${column_name}$`]: {
+        [Op.like]: `%${query ?? "*"}%`,
       },
     };
     try {
@@ -116,7 +90,7 @@ class ControllerProduct {
           {
             model: CategoryModel,
             as: "category",
-            attributes: ["id", "category_name"],
+            attributes: ["category_name"],
           },
         ],
         limit,
