@@ -4,18 +4,19 @@ const {
   token: { isAuthentication },
 } = require("../../utils");
 const {
- addProduct,
- getListProduct,
- getDetailProduct,
- deleteProduct,
- updateProduct
+  addProduct,
+  getListProduct,
+  getDetailProduct,
+  deleteProduct,
+  updateProduct,
+  getListFreeProduct,
 } = require("../controller/product");
 
-
-router.post("/",addProduct);
+router.post("/", addProduct);
 router.get("/", getListProduct);
-router.get("/:uuid",getDetailProduct)
-router.delete("/:uuid",deleteProduct)
-router.put("/:uuid",updateProduct)
+router.get("/free", getListFreeProduct);
+router.get("/:uuid", getDetailProduct);
+router.delete("/:uuid", deleteProduct);
+router.put("/:uuid", updateProduct);
 
 module.exports = router;

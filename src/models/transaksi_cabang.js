@@ -8,6 +8,7 @@ const {
   INET,
 } = require("sequelize");
 const database = require("../../database");
+const cabangModel = require("./cabang");
 
 const transaksi_cabang = database.define(
   "transaksi_cabang",
@@ -34,6 +35,7 @@ const transaksi_cabang = database.define(
     payment_method2: { type: STRING(100), allowNull: true },
     discount: { type: INTEGER, allowNull: true },
     surat_jalan: { type: STRING(100), allowNull: true },
+    notes: { type: TEXT, allowNull: true },
     transaksi_status: {
       type: ENUM(["COMPLETE", "CANCEL", "DP", "KREDIT"]),
       allowNull: false,
@@ -42,6 +44,12 @@ const transaksi_cabang = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
-transaksi_cabang.sync({force:false});
+transaksi_cabang.sync({ force: false, alter: false });
+
+cabangModel.hasMany(transaksi_cabang, {
+  foreignKey: "cabangId",
+});
+
+transaksi_cabang.belongsTo(cabangModel);
 
 module.exports = transaksi_cabang;

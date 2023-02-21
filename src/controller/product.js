@@ -108,6 +108,38 @@ class ControllerProduct {
     }
   };
 
+  getListFreeProduct = async (req, res) => {
+    const { page = 1, size = 10 } = req.query;
+    const { limit, offset } = getPagination(page, size);
+
+    const condition = {
+      ["price"]: 0,
+    };
+    try {
+      const getProduct = await ProductModel.findAndCountAll({
+        where: condition,
+        include: [
+          {
+            model: CategoryModel,
+            as: "category",
+            attributes: ["category_name"],
+          },
+        ],
+        limit,
+        offset,
+        order: [["id", "DESC"]],
+      });
+
+      responseJSON({
+        res,
+        status: 200,
+        data: getPagingData(getProduct, page, limit),
+      });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
+    }
+  };
+
   getDetailProduct = async (req, res) => {
     const { uuid } = req.params;
     try {

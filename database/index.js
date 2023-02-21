@@ -9,7 +9,15 @@ const Database = () => {
   return new sequelize(DB_NAME, DB_USER, DB_PASS, {
     dialect: "mysql",
     host: DB_HOST,
-    port:3306
+    port: 3306,
+    dialectOptions: {
+      // useUTC: false, //for reading from database
+      dateStrings: true,
+      typeCast: true,
+      timezone: "+07:00",
+    },
+    timezone: "+07:00",
+    operatorsAliases: false,
   });
 };
 

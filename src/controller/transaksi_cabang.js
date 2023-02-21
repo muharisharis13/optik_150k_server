@@ -1,7 +1,9 @@
 const {
   TransaksiCabangModel,
-  CategoryModel,
+  CabangModel,
   TransaksiCabangDetailModel,
+  ProductModel,
+  CategoryModel,
 } = require("../models");
 const status = require("http-status");
 const {
@@ -13,6 +15,80 @@ const { v4: uuidv4 } = require("uuid");
 const { Op, Sequelize } = require("sequelize");
 
 class ControllerTransaksiCabang {
+  cancelTransaksiCabang = async (req, res) => {
+    const { uuid } = req.params;
+    try {
+      const getTransaksiCabang = await TransaksiCabangModel.findOne({
+        where: {
+          uuid,
+        },
+      });
+
+      if (getTransaksiCabang) {
+        const updateTransaksiCabangToCancel = await getTransaksiCabang.update({
+          transaksi_status: "CANCEL",
+        });
+
+        const getListProduct = await TransaksiCabangDetailModel.findAll({
+          where: {
+            transaksiCabangId: getTransaksiCabang?.id,
+          },
+        });
+
+        getListProduct?.map(async (item) => {
+          await ProductModel.findOne({
+            where: {
+              id: item.productId,
+            },
+          }).then((resultProduct) => {
+            resultProduct.update({
+              stock: resultProduct?.stock + item.qty,
+            });
+          });
+        });
+
+        responseJSON({
+          res,
+          status: 200,
+          data: {
+            message: "Berhasil Cancel Penjualan Cabang",
+            dataInfo: updateTransaksiCabangToCancel,
+          },
+        });
+      } else {
+        responseJSON({ res, status: 200, data: "Transaksi Tidak Ditemukan" });
+      }
+
+      responseJSON();
+    } catch (error) {
+      // responseJSON({ res, status: 500, data: "Error" });
+    }
+  };
+
+  //sudah
+  pelunasanTransaksiCabang = async (req, res) => {
+    const { uuid } = req.params;
+    const { uang2, payment_method2 } = req.body;
+    try {
+      const getTransaksiCabang = await TransaksiCabangModel.findOne({
+        where: {
+          uuid,
+        },
+      });
+
+      const updatePelunasanTransakasiCabang = await getTransaksiCabang.update({
+        uang2,
+        payment_method2,
+        transaksi_status: "COMPLETE",
+        total_uang: parseInt(getTransaksiCabang?.total_uang) + parseInt(uang2),
+      });
+      responseJSON({ res, status: 200, data: updatePelunasanTransakasiCabang });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
+    }
+  };
+
+  //bnlm di cek
   addTransaksiCabang = async (req, res) => {
     const {
       total_transaksi_cabang,
@@ -93,18 +169,34 @@ class ControllerTransaksiCabang {
     }
   };
 
+  //sudah
   getListTransaksiCabang = async (req, res) => {
-    const { page = 1, size = 10, column_name = "id", query = "" } = req.query;
+    const {
+      page = 1,
+      size = 10,
+      column_name = "no_faktur",
+      query = "",
+    } = req.query;
     const { limit, offset } = getPagination(page, size);
 
     const condition = {
-      [column_name]: {
+      [`$${column_name}$`]: {
         [Op.like]: `%${query ?? ""}%`,
       },
     };
     try {
       const getTransaksiCabang = await TransaksiCabangModel.findAndCountAll({
         where: condition,
+        include: [
+          {
+            model: CabangModel,
+            as: "cabang",
+            attributes: {
+              exclude: ["createdAt", "updatedAt", "uui"],
+            },
+            required: false,
+          },
+        ],
         limit,
         offset,
         order: [["id", "DESC"]],
@@ -120,6 +212,7 @@ class ControllerTransaksiCabang {
     }
   };
 
+  //sudah
   getDetailTransaksiCabang = async (req, res) => {
     const { uuid } = req.params;
     try {
@@ -127,6 +220,16 @@ class ControllerTransaksiCabang {
         where: {
           uuid: uuid,
         },
+        include: [
+          {
+            model: CabangModel,
+            as: "cabang",
+            attributes: {
+              exclude: ["createdAt", "updatedAt", "uuid"],
+            },
+            required: false,
+          },
+        ],
       });
 
       const getListTransaksiCabangDetail =
@@ -134,6 +237,24 @@ class ControllerTransaksiCabang {
           where: {
             transaksiCabangId: getTransaksiCabang?.id,
           },
+          include: [
+            {
+              model: ProductModel,
+              as: "product",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "uuid"],
+              },
+              include: [
+                {
+                  model: CategoryModel,
+                  as: "category",
+                  attributes: {
+                    exclude: ["createdAt", "updatedAt", "uuid"],
+                  },
+                },
+              ],
+            },
+          ],
         });
 
       responseJSON({
@@ -180,7 +301,7 @@ class ControllerTransaksiCabang {
       payment_method1,
       payment_method2,
       discount,
-      transaksi_status
+      transaksi_status,
     } = req.body;
 
     transaksi_status ?? "KREDIT";
@@ -200,7 +321,7 @@ class ControllerTransaksiCabang {
         payment_method1,
         payment_method2,
         discount,
-        transaksi_status
+        transaksi_status,
       });
 
       responseJSON({ res, status: 200, data: updateTransaksiCabang });

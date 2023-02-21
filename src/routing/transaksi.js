@@ -4,18 +4,21 @@ const {
   token: { isAuthentication },
 } = require("../../utils");
 const {
- addTransaksi,
- getListTransaksi,
- getDetailTransaksi,
- deleteTransaksi,
- updateTransaksi
+  addTransaksi,
+  getListTransaksi,
+  getDetailTransaksi,
+  deleteTransaksi,
+  updateTransaksi,
+  pelunasanTransaksi,
+  cancelTransaksi,
 } = require("../controller/transaksi");
 
-
-router.post("/",addTransaksi);
+router.post("/pelunasan/:uuid", pelunasanTransaksi);
+router.post("/cancel/:uuid", cancelTransaksi);
+router.post("/", addTransaksi);
 router.get("/", getListTransaksi);
-router.get("/:uuid",getDetailTransaksi)
-router.delete("/:uuid",deleteTransaksi)
-router.put("/:uuid",updateTransaksi)
+router.get("/:uuid", getDetailTransaksi);
+router.delete("/:uuid", deleteTransaksi);
+router.put("/:uuid", updateTransaksi);
 
 module.exports = router;

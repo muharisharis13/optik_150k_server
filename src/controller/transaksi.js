@@ -1,7 +1,9 @@
 const {
   TransaksiModel,
-  CategoryModel,
   TransaksiDetailModel,
+  CustomerModel,
+  ProductModel,
+  CategoryModel,
 } = require("../models");
 const status = require("http-status");
 const {
@@ -11,8 +13,80 @@ const {
 } = require("../../utils");
 const { v4: uuidv4 } = require("uuid");
 const { Op, Sequelize } = require("sequelize");
+const transaksi_detail = require("../models/transaksi_detail");
 
 class ControllerTransaksi {
+  cancelTransaksi = async (req, res) => {
+    const { uuid } = req.params;
+    try {
+      const getTransaksi = await TransaksiModel.findOne({
+        where: {
+          uuid,
+        },
+      });
+
+      if (getTransaksi) {
+        const updateTransaksiToCancel = await getTransaksi.update({
+          transaksi_status: "CANCEL",
+        });
+
+        const getListProduct = await TransaksiDetailModel.findAll({
+          where: {
+            transaksiId: getTransaksi?.id,
+          },
+        });
+
+        getListProduct?.map(async (item) => {
+          await ProductModel.findOne({
+            where: {
+              id: item.productId,
+            },
+          }).then((resultProduct) => {
+            resultProduct.update({
+              stock: resultProduct?.stock + item.qty,
+            });
+          });
+        });
+
+        responseJSON({
+          res,
+          status: 200,
+          data: {
+            message: "Berhasil Cancel Penjualan",
+            dataInfo: updateTransaksiToCancel,
+          },
+        });
+      } else {
+        responseJSON({ res, status: 200, data: "Transaksi Tidak Ditemukan" });
+      }
+
+      responseJSON();
+    } catch (error) {
+      // responseJSON({ res, status: 500, data: "Error" });
+    }
+  };
+  pelunasanTransaksi = async (req, res) => {
+    const { uuid } = req.params;
+    const { uang2, payment_method2 } = req.body;
+    try {
+      const getTransaksi = await TransaksiModel.findOne({
+        where: {
+          uuid,
+        },
+      });
+
+      const updatePelunasanTransakasi = await getTransaksi.update({
+        uang2,
+        payment_method2,
+        transaksi_status: "COMPLETE",
+        total_uang: parseInt(getTransaksi?.total_uang) + parseInt(uang2),
+      });
+      responseJSON({ res, status: 200, data: updatePelunasanTransakasi });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
+    }
+  };
+
   addTransaksi = async (req, res) => {
     const {
       total_transaksi,
@@ -23,6 +97,9 @@ class ControllerTransaksi {
       payment_method1,
       payment_method2,
       discount,
+      listProduct = [],
+      notes,
+      transaksi_status,
     } = req.body;
 
     var dateObj = new Date();
@@ -37,19 +114,27 @@ class ControllerTransaksi {
 
     try {
       const getCountTransaksi = await TransaksiModel.findAndCountAll({
-        where: Sequelize.where(
-          Sequelize.fn("date", Sequelize.col("createdAt")),
-          "=",
-          transaksi_date
-        ), // Select createdAt as format date YYYY-MM-DD
+        where: {
+          no_faktur: {
+            [Op.like]: `%${date_}%`,
+          },
+        },
         limit: 1,
         order: [["no_faktur", "DESC"]],
       });
+      console.log({
+        getCountTransaksi,
+        date_,
+        // list: await TransaksiModel.findAll({
+        //   raw: true,
+        // }),
+      });
+      // stop;
       const { count, rows } = getCountTransaksi;
-      let countTransaksi = count + 1;
+
+      let countTransaksi = parseInt(count || 0) + 1;
       var transaksiNo = countTransaksi?.toString().padStart(6, "0");
       var no_faktur = date_ + transaksiNo;
-      var transaksi_status = "COMPLETE";
 
       await TransaksiModel.create({
         no_faktur,
@@ -60,10 +145,26 @@ class ControllerTransaksi {
         customerId,
         payment_method1,
         payment_method2,
-        transaksi_status,
+        transaksi_status:
+          transaksi_status === "Lunas" ? "COMPLETE" : transaksi_status,
         discount,
         uuid: uuidv4(),
+        notes: notes,
       }).then((result) => {
+        const transaksiId = result?.id;
+        console.log({ listProduct });
+        listProduct?.map(async (item) => {
+          return await TransaksiDetailModel.create({
+            uuid: uuidv4(),
+            transaksiId,
+            productId: item.productId,
+            price: item.price,
+            qty: item.qty,
+            discount: 0,
+            subtotal: item.subtotal,
+            notes: item.notes ?? "-",
+          });
+        });
         responseJSON({ res, status: 200, data: result });
       });
     } catch (error) {
@@ -72,17 +173,31 @@ class ControllerTransaksi {
   };
 
   getListTransaksi = async (req, res) => {
-    const { page = 1, size = 10, column_name = "id", query = "" } = req.query;
+    const {
+      page = 1,
+      size = 10,
+      column_name = "no_faktur",
+      query = "",
+    } = req.query;
     const { limit, offset } = getPagination(page, size);
 
     const condition = {
-      [column_name]: {
+      [`$${column_name}$`]: {
         [Op.like]: `%${query ?? ""}%`,
       },
     };
     try {
       const getTransaksi = await TransaksiModel.findAndCountAll({
         where: condition,
+        include: [
+          {
+            model: CustomerModel,
+            as: "customer",
+            attributes: {
+              exclude: ["uuid", "createdAt", "updatedAt"],
+            },
+          },
+        ],
         limit,
         offset,
         order: [["id", "DESC"]],
@@ -105,11 +220,41 @@ class ControllerTransaksi {
         where: {
           uuid: uuid,
         },
+        include: [
+          {
+            model: CustomerModel,
+            as: "customer",
+            attributes: {
+              exclude: ["uuid", "createdAt", "updatedAt"],
+            },
+          },
+        ],
       });
 
       const getListTransaksiDetail = await TransaksiDetailModel.findAll({
         where: {
           transaksiId: getTransaksi?.id,
+        },
+        include: [
+          {
+            model: ProductModel,
+            as: "product",
+            attributes: {
+              exclude: ["uuid", "createdAt", "updatedAt"],
+            },
+            include: [
+              {
+                model: CategoryModel,
+                as: "category",
+                attributes: {
+                  exclude: ["uuid", "createdAt", "updatedAt"],
+                },
+              },
+            ],
+          },
+        ],
+        attributes: {
+          exclude: ["transaksiId"],
         },
       });
       responseJSON({

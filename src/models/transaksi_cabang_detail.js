@@ -1,5 +1,14 @@
-const { STRING, DOUBLE, TEXT, ENUM, INTEGER, DATEONLY, INET } = require("sequelize");
+const {
+  STRING,
+  DOUBLE,
+  TEXT,
+  ENUM,
+  INTEGER,
+  DATEONLY,
+  INET,
+} = require("sequelize");
 const database = require("../../database");
+const ProductModel = require("./product");
 
 const transaksi_cabang_detail = database.define(
   "transaksi_cabang_detail",
@@ -18,6 +27,7 @@ const transaksi_cabang_detail = database.define(
       },
     },
     productId: { type: STRING(100), allowNull: false },
+    notes: { type: TEXT, allowNull: true },
     qty: { type: INTEGER, allowNull: false },
     price: { type: INTEGER, allowNull: false },
     discount: { type: INTEGER, allowNull: true },
@@ -26,6 +36,12 @@ const transaksi_cabang_detail = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
-transaksi_cabang_detail.sync({force:false});
+transaksi_cabang_detail.sync({ force: false, alter: false });
+
+ProductModel.hasMany(transaksi_cabang_detail, {
+  foreignKey: "productId",
+});
+
+transaksi_cabang_detail.belongsTo(ProductModel);
 
 module.exports = transaksi_cabang_detail;
