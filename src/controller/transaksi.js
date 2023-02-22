@@ -154,7 +154,7 @@ class ControllerTransaksi {
         const transaksiId = result?.id;
         console.log({ listProduct });
         listProduct?.map(async (item) => {
-          return await TransaksiDetailModel.create({
+           await TransaksiDetailModel.create({
             uuid: uuidv4(),
             transaksiId,
             productId: item.productId,
@@ -164,6 +164,17 @@ class ControllerTransaksi {
             subtotal: item.subtotal,
             notes: item.notes ?? "-",
           });
+
+          await ProductModel.findOne({
+            where :{
+              id:item.productId
+            }
+          })
+          .then(resultProduct => {
+            resultProduct.update({
+              stock:parseInt(resultProduct.stock) - parseInt(item.qty)
+            })
+          })
         });
         responseJSON({ res, status: 200, data: result });
       });

@@ -12,6 +12,7 @@ const SupplierRouter = require("./supplier")
 const BeliRouter = require("./beli")
 const TransaksiRouter = require("./transaksi")
 const TransaksiCabangRouter = require("./transaksi_cabang")
+const ReportRouter = require("./report")
 const { base_path } = require("../../utils");
 
 const Routing = (app) => {
@@ -29,6 +30,7 @@ const Routing = (app) => {
   app.use(base_path("beli"), BeliRouter)
   app.use(base_path("transaksi"), TransaksiRouter)
   app.use(base_path("transaksi-cabang"), TransaksiCabangRouter)
+  app.use(base_path("report"), ReportRouter)
 };
 
 module.exports = Routing;

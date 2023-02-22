@@ -99,6 +99,9 @@ class ControllerTransaksiCabang {
       payment_method1,
       payment_method2,
       discount,
+      notes,
+      listProduct=[],
+      transaksi_status="KREDIT"
     } = req.body;
     var dateObj = new Date();
     var month = dateObj.getUTCMonth() + 1; //months from 1-12
@@ -124,7 +127,6 @@ class ControllerTransaksiCabang {
       let countTransaksi = count + 1;
       var transaksiNo = countTransaksi?.toString().padStart(6, "0");
       var no_faktur = date_ + transaksiNo;
-      var transaksi_status = "KREDIT";
 
       // Generate Surat Jalan
       const getSuratJalan = await TransaksiCabangModel.findAndCountAll({
@@ -160,8 +162,33 @@ class ControllerTransaksiCabang {
         discount,
         surat_jalan,
         transaksi_status,
+        notes,
         uuid: uuidv4(),
       }).then((result) => {
+        const transaksiCabangId = result?.id
+        listProduct.map(async (item)=>{
+          await TransaksiCabangDetailModel.create({
+            uuid:uuidv4(),
+            transaksiCabangId,
+            productId:item?.productId,
+            price:item?.price,
+            qty:item?.qty,
+            discount:0,
+            subtotal:item?.subtotal,
+            notes:item?.notes || "-"
+          })
+
+          await ProductModel.findOne({
+            where :{
+              id:item.productId
+            }
+          })
+          .then(resultProduct => {
+            resultProduct.update({
+              stock:parseInt(resultProduct.stock) - parseInt(item.qty)
+            })
+          })
+        })
         responseJSON({ res, status: 200, data: result });
       });
     } catch (error) {
