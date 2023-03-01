@@ -4,6 +4,10 @@ const {
   CustomerModel,
   ProductModel,
   CategoryModel,
+  CaraBayarModel,
+  PengeluaranModel,
+  TransaksiCabangModel,
+  TransaksiCabangDetailModel,
 } = require("../models");
 const status = require("http-status");
 const {
@@ -14,8 +18,170 @@ const {
 const { v4: uuidv4 } = require("uuid");
 const { Op, Sequelize } = require("sequelize");
 const transaksi_detail = require("../models/transaksi_detail");
+const moment = require("moment");
 
 class ControllerTransaksi {
+  resumeTransaksi = async (req, res) => {
+    const midNight = new Date();
+    midNight.setHours(0, 0, 0, 0);
+    try {
+      const getCaraBayar = await CaraBayarModel.findAll({
+        raw: true,
+      });
+      const getTransaksi = await TransaksiModel.findAll({
+        where: {
+          createdAt: {
+            [Op.gte]: midNight,
+            [Op.lte]: new Date(new Date() + 24 * 60 * 60 * 1000),
+          },
+        },
+        raw: true,
+      });
+      const getTransaksiCabang = await TransaksiCabangModel.findAll({
+        where: {
+          createdAt: {
+            [Op.gte]: midNight,
+            [Op.lte]: new Date(new Date() + 24 * 60 * 60 * 1000),
+          },
+        },
+        raw: true,
+      });
+
+      const getPengeluaran = await PengeluaranModel.findAll({
+        where: {
+          createdAt: {
+            [Op.gte]: midNight,
+            [Op.lte]: new Date(new Date() + 24 * 60 * 60 * 1000),
+          },
+        },
+        raw: true,
+      });
+
+      const newTransaksi = getTransaksiCabang
+        ?.map((item) => ({
+          ...item,
+          total_transaksi: item.total_transaksi_cabang,
+        }))
+        .concat(getTransaksi);
+
+      const metodePembayaran1 = getCaraBayar?.map((item) => ({
+        type: item.cara_bayar_name,
+        result: newTransaksi
+          .filter(
+            (filter) =>
+              filter.payment_method1.toLowerCase() ==
+              item.cara_bayar_name.toLowerCase()
+          )
+          .map((item) => ({
+            total_transaksi: item?.total_transaksi,
+            payment_method1: item?.payment_method1,
+            creadtedAt: item.createdAt,
+          })),
+        total: newTransaksi
+          .filter(
+            (filter) =>
+              filter.payment_method1.toLowerCase() ==
+              item.cara_bayar_name.toLowerCase()
+          )
+          .map((item) => ({
+            total_transaksi: item?.total_transaksi,
+            payment_method1: item?.payment_method1,
+            payment_method2: item.payment_method2,
+          }))
+          .reduce((prev, curr) => prev + parseInt(curr?.total_transaksi), 0),
+      }));
+
+      const getTransaksiMethodCash = await TransaksiModel.findAll({
+        where: {
+          createdAt: {
+            [Op.lt]: new Date(),
+            [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000),
+          },
+          payment_method1: {
+            [Op.like]: `%Cash%`,
+          },
+        },
+      });
+
+      const newTotalTransaksiMethodCash = getTransaksiMethodCash.reduce(
+        (prev, curr) => prev + parseInt(curr.total_transaksi),
+        0
+      );
+
+      const newTotalPengeluaran = getPengeluaran?.reduce(
+        (prev, curr) => prev + parseInt(curr.amount),
+        0
+      );
+
+      responseJSON({
+        res,
+        status: 200,
+        data: {
+          penjualanToko: newTotalTransaksiMethodCash - newTotalPengeluaran,
+          pengeluaran: {
+            result: getPengeluaran.map((item) => ({
+              amount: item.amount,
+            })),
+            total: getPengeluaran?.reduce(
+              (prev, curr) => prev + parseInt(curr.amount),
+              0
+            ),
+          },
+          metodePembayaran1,
+        },
+      });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
+    }
+  };
+  transaksiDay = async (req, res) => {
+    const midNight = new Date();
+    midNight.setHours(0, 0, 0, 0);
+    try {
+      const getListTransaksiDetailCabang =
+        await TransaksiCabangDetailModel.findAll({
+          where: {
+            createdAt: {
+              [Op.gte]: midNight,
+              [Op.lte]: new Date(new Date() + 24 * 60 * 60 * 1000),
+            },
+          },
+          include: [
+            {
+              model: ProductModel,
+              as: "product",
+              attributes: {
+                exclude: ["uuid", "createdAt", "updatedAt"],
+              },
+            },
+          ],
+        });
+      const getListTransaksiDetail = await TransaksiDetailModel.findAll({
+        where: {
+          createdAt: {
+            [Op.gte]: midNight,
+            [Op.lte]: new Date(new Date() + 24 * 60 * 60 * 1000),
+          },
+        },
+        include: [
+          {
+            model: ProductModel,
+            as: "product",
+            attributes: {
+              exclude: ["uuid", "createdAt", "updatedAt"],
+            },
+          },
+        ],
+      });
+      responseJSON({
+        res,
+        status: 200,
+        data: getListTransaksiDetail.concat(getListTransaksiDetailCabang),
+      });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error });
+    }
+  };
   cancelTransaksi = async (req, res) => {
     const { uuid } = req.params;
     try {
@@ -150,11 +316,10 @@ class ControllerTransaksi {
         discount,
         uuid: uuidv4(),
         notes: notes,
-      }).then((result) => {
+      }).then(async (result) => {
         const transaksiId = result?.id;
-        console.log({ listProduct });
         listProduct?.map(async (item) => {
-           await TransaksiDetailModel.create({
+          await TransaksiDetailModel.create({
             uuid: uuidv4(),
             transaksiId,
             productId: item.productId,
@@ -166,17 +331,34 @@ class ControllerTransaksi {
           });
 
           await ProductModel.findOne({
-            where :{
-              id:item.productId
-            }
-          })
-          .then(resultProduct => {
+            where: {
+              id: item.productId,
+            },
+          }).then((resultProduct) => {
             resultProduct.update({
-              stock:parseInt(resultProduct.stock) - parseInt(item.qty)
-            })
-          })
+              stock: parseInt(resultProduct.stock) - parseInt(item.qty),
+            });
+          });
         });
-        responseJSON({ res, status: 200, data: result });
+        const getListTransaksiDetail = await TransaksiDetailModel.findAll({
+          where: {
+            transaksiId,
+          },
+          include: [
+            {
+              model: ProductModel,
+              as: "product",
+              attributes: {
+                exclude: ["uuid", "createdAt", "updatedAt"],
+              },
+            },
+          ],
+        });
+        responseJSON({
+          res,
+          status: 200,
+          data: { result, listProduct: getListTransaksiDetail },
+        });
       });
     } catch (error) {
       responseJSON({ res, status: 400, data: error });

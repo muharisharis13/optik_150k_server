@@ -100,8 +100,8 @@ class ControllerTransaksiCabang {
       payment_method2,
       discount,
       notes,
-      listProduct=[],
-      transaksi_status="KREDIT"
+      listProduct = [],
+      transaksi_status = "CREDIT",
     } = req.body;
     var dateObj = new Date();
     var month = dateObj.getUTCMonth() + 1; //months from 1-12
@@ -164,32 +164,51 @@ class ControllerTransaksiCabang {
         transaksi_status,
         notes,
         uuid: uuidv4(),
-      }).then((result) => {
-        const transaksiCabangId = result?.id
-        listProduct.map(async (item)=>{
+      }).then(async (result) => {
+        const transaksiCabangId = result?.id;
+        listProduct.map(async (item) => {
           await TransaksiCabangDetailModel.create({
-            uuid:uuidv4(),
+            uuid: uuidv4(),
             transaksiCabangId,
-            productId:item?.productId,
-            price:item?.price,
-            qty:item?.qty,
-            discount:0,
-            subtotal:item?.subtotal,
-            notes:item?.notes || "-"
-          })
+            productId: item?.productId,
+            price: item?.price,
+            qty: item?.qty,
+            discount: 0,
+            subtotal: item?.subtotal,
+            notes: item?.notes || "-",
+          });
 
           await ProductModel.findOne({
-            where :{
-              id:item.productId
-            }
-          })
-          .then(resultProduct => {
+            where: {
+              id: item.productId,
+            },
+          }).then((resultProduct) => {
             resultProduct.update({
-              stock:parseInt(resultProduct.stock) - parseInt(item.qty)
-            })
-          })
-        })
-        responseJSON({ res, status: 200, data: result });
+              stock: parseInt(resultProduct.stock) - parseInt(item.qty),
+            });
+          });
+        });
+
+        const getListTransaksiCabangDetail =
+          await TransaksiCabangDetailModel.findAll({
+            where: {
+              transaksiCabangId,
+            },
+            include: [
+              {
+                model: ProductModel,
+                as: "product",
+                attributes: {
+                  exclude: ["uuid", "createdAt", "updatedAt"],
+                },
+              },
+            ],
+          });
+        responseJSON({
+          res,
+          status: 200,
+          data: { result, listProduct: getListTransaksiCabangDetail },
+        });
       });
     } catch (error) {
       responseJSON({ res, status: 500, data: error });
@@ -331,7 +350,7 @@ class ControllerTransaksiCabang {
       transaksi_status,
     } = req.body;
 
-    transaksi_status ?? "KREDIT";
+    transaksi_status ?? "CREDIT";
     try {
       const getDetailTransaksiCabang = await TransaksiCabangModel.findOne({
         where: {

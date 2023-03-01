@@ -1,5 +1,6 @@
-const { STRING,  TEXT,DATE , INTEGER } = require("sequelize");
+const { STRING, TEXT, DATE, INTEGER } = require("sequelize");
 const database = require("../../database");
+const supplierModel = require("./supplier");
 
 const beli = database.define(
   "beli",
@@ -17,18 +18,24 @@ const beli = database.define(
         notNull: true,
       },
     },
-    beli_tanggal:{
-        type:DATE,
-        allowNull : false
+    beli_tanggal: {
+      type: DATE,
+      allowNull: false,
     },
-    supplierId:{
-        type:INTEGER,
-        allowNull: false
-    }
+    supplierId: {
+      type: INTEGER,
+      allowNull: false,
+    },
   },
   { timestamps: true, freezeTableName: true }
 );
 
-beli.sync({force:false})
+beli.sync({ force: false });
 
-module.exports = beli
+supplierModel.hasMany(beli, {
+  foreignKey: "supplierId",
+});
+
+beli.belongsTo(supplierModel);
+
+module.exports = beli;

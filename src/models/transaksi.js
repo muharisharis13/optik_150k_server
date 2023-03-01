@@ -27,7 +27,7 @@ const transaksi = database.define(
       },
     },
     transaksi_status: {
-      type: ENUM(["COMPLETE", "CANCEL", "DP", "KREDIT"]),
+      type: ENUM(["COMPLETE", "CANCEL", "DP", "CREDIT"]),
       allowNull: false,
     },
     total_transaksi: { type: INTEGER, allowNull: false },

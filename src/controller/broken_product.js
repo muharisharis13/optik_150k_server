@@ -18,7 +18,16 @@ class ControllerBrokenProduct {
         qty,
         notes,
         uuid: uuidv4(),
-      }).then((result) => {
+      }).then(async (result) => {
+        await ProductModel.findOne({
+          where: {
+            id: productId,
+          },
+        }).then(async (resultprd) => {
+          await resultprd.update({
+            stock: parseInt(resultprd?.stock) - parseInt(qty),
+          });
+        });
         responseJSON({ res, status: 200, data: result });
       });
     } catch (error) {

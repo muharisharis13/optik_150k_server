@@ -1,5 +1,6 @@
 const { STRING, TEXT, DATEONLY, INTEGER } = require("sequelize");
 const database = require("../../database");
+const product = require("./product");
 
 const beli_detail = database.define(
   "beli_detail",
@@ -37,6 +38,12 @@ const beli_detail = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
-beli_detail.sync({force:false});
+beli_detail.sync({ force: false });
+
+product.hasMany(beli_detail, {
+  foreignKey: "productId",
+});
+
+beli_detail.belongsTo(product);
 
 module.exports = beli_detail;

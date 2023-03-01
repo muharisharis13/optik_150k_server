@@ -1,4 +1,9 @@
-const { BeliModel, BeliDetailModel } = require("../models");
+const {
+  BeliModel,
+  BeliDetailModel,
+  SupplierModel,
+  ProductModel,
+} = require("../models");
 const {
   responseJSON,
   paging: { getPagination, getPagingData },
@@ -8,18 +13,17 @@ const { Op } = require("sequelize");
 
 class ControllerBeli {
   addBeli = async (req, res) => {
-    const { beli_tanggal, supplierId } = req.body;
+    const { beli_tanggal, supplierId, listProduct = [] } = req.body;
     const getCountBeli = await BeliModel.findAndCountAll({
       limit: 1,
       order: [["no_faktur_beli", "DESC"]],
     });
     const { count, rows } = getCountBeli;
 
-    
-      let beli_faktur_new =
-        parseInt(rows[0].no_faktur_beli?.split("BI-")[1] || 0) + 1;
-      var no_faktur_beli = "BI-" + beli_faktur_new?.toString().padStart(7, "0");
-   
+    let beli_faktur_new =
+      parseInt(rows[0].no_faktur_beli?.split("BI-")[1] || 0) + 1;
+    var no_faktur_beli = "BI-" + beli_faktur_new?.toString().padStart(7, "0");
+
     try {
       await BeliModel.create({
         no_faktur_beli,
@@ -27,6 +31,26 @@ class ControllerBeli {
         supplierId,
         uuid: uuidv4(),
       }).then((result) => {
+        listProduct.map(async (item) => {
+          await BeliDetailModel.create({
+            beliId: result?.id,
+            uuid: uuidv4(),
+            productId: item?.productId,
+            price: item?.price,
+            qty: item?.qty,
+            subtotal: item?.subtotal,
+          });
+
+          await ProductModel.findOne({
+            where: {
+              id: item?.productId,
+            },
+          }).then(async (resultProduct) => {
+            await resultProduct.update({
+              stock: parseInt(resultProduct?.stock) + parseInt(item?.qty),
+            });
+          });
+        });
         responseJSON({ res, status: 200, data: result });
       });
     } catch (error) {
@@ -39,7 +63,7 @@ class ControllerBeli {
     const { limit, offset } = getPagination(page, size);
 
     const condition = {
-      [column_name]: {
+      [`$${column_name}$`]: {
         [Op.like]: `%${query ?? ""}%`,
       },
     };
@@ -49,6 +73,15 @@ class ControllerBeli {
         limit,
         offset,
         order: [["id", "DESC"]],
+        include: [
+          {
+            model: SupplierModel,
+            as: "supplier",
+            attributes: {
+              exclude: ["creadtedAt", "upadatedAt", "uuid"],
+            },
+          },
+        ],
       });
 
       responseJSON({
@@ -68,12 +101,31 @@ class ControllerBeli {
         where: {
           uuid,
         },
+
+        include: [
+          {
+            model: SupplierModel,
+            as: "supplier",
+            attributes: {
+              exclude: ["creadtedAt", "upadatedAt", "uuid"],
+            },
+          },
+        ],
       });
 
       const getListBeliDetail = await BeliDetailModel.findAll({
         where: {
           beliId: getDetailBeli?.id,
         },
+        include: [
+          {
+            model: ProductModel,
+            as: "product",
+            attributes: {
+              exclude: ["creadtedAt", "upadatedAt", "uuid"],
+            },
+          },
+        ],
       });
 
       responseJSON({

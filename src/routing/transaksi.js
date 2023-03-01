@@ -11,8 +11,12 @@ const {
   updateTransaksi,
   pelunasanTransaksi,
   cancelTransaksi,
+  transaksiDay,
+  resumeTransaksi,
 } = require("../controller/transaksi");
 
+router.get("/resume", resumeTransaksi);
+router.get("/per-day", transaksiDay);
 router.post("/pelunasan/:uuid", pelunasanTransaksi);
 router.post("/cancel/:uuid", cancelTransaksi);
 router.post("/", addTransaksi);
