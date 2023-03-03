@@ -9,6 +9,11 @@ const {
   TransaksiCabangModel,
   TransaksiCabangDetailModel,
   CabangModel,
+  BeliModel,
+  SupplierModel,
+  BeliDetailModel,
+  KwitansiModel,
+  PengeluaranModel,
 } = require("../models");
 const { Op } = require("sequelize");
 const moment = require("moment");
@@ -443,6 +448,133 @@ class ControllerReport {
       responseJSON({ res, status: 200, data: newGetListProductAllCategory });
     } catch (error) {
       responseJSON({ res, status: 500, data: error });
+    }
+  };
+  getListBeli = async (req, res) => {
+    const { from_datetime, until_datetime, supplierId, productId } = req.query;
+
+    try {
+      const listBeli = await BeliModel.findAll({
+        include: [
+          {
+            model: SupplierModel,
+            as: "supplier",
+            attributes: {
+              exclude: ["uuid", "createdAt", "updatedAt"],
+            },
+          },
+        ],
+      });
+
+      const listDetailBeli = await BeliDetailModel.findAll({
+        where: {
+          createdAt: {
+            [Op.gte]: `${midNight(from_datetime)}`,
+            [Op.lte]: `${newStartDate(until_datetime)}`,
+          },
+        },
+        include: [
+          {
+            model: ProductModel,
+            as: "product",
+            attributes: {
+              exclude: ["uuid", "createdAt", "updatedAt"],
+            },
+            include: [
+              {
+                model: CategoryModel,
+                as: "category",
+                attributes: {
+                  exclude: ["uuid", "createdAt", "updatedAt"],
+                },
+              },
+            ],
+          },
+        ],
+      });
+
+      const getListProduct = await ProductModel.findAll();
+      const getListCategory = await CategoryModel.findAll();
+      const getListSupplier = await SupplierModel.findAll();
+
+      const newListBeli = listDetailBeli?.map((item) => ({
+        ...item.dataValues,
+        beli_info: listBeli?.find(
+          (find) => find?.id == item?.dataValues?.beliId
+        ),
+      }));
+
+      const supplier = getListSupplier.map((item) => ({
+        ...item.dataValues,
+        listBeli: newListBeli?.filter(
+          (filter) => item?.dataValues.id == filter?.beli_info?.supplierId
+        ),
+      }));
+
+      const categoryProduct = getListCategory?.map((item) => ({
+        ...item.dataValues,
+        listBeli: newListBeli?.filter(
+          (filter) => item?.dataValues?.id === filter?.product?.categoryId
+        ),
+      }));
+
+      const product = getListProduct?.map((item) => ({
+        ...item.dataValues,
+        listBeli: newListBeli?.filter(
+          (filter) => item?.dataValues?.productId === filter?.product?.id
+        ),
+      }));
+
+      const newData = {
+        supplier,
+        categoryProduct,
+        product,
+      };
+      responseJSON({
+        res,
+        status: 200,
+        data: supplierId
+          ? newData.supplier?.filter((filter) => filter?.id == supplierId)
+          : supplierId
+          ? newData.product?.filter((filter) => filter?.id == productId)
+          : newData,
+      });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error.message });
+    }
+  };
+
+  geListKwitansi = async (req, res) => {
+    const { from_datetime, until_datetime } = req.query;
+    try {
+      const listKwitansi = await KwitansiModel.findAll({
+        where: {
+          createdAt: {
+            [Op.gte]: `${midNight(from_datetime)}`,
+            [Op.lte]: `${newStartDate(until_datetime)}`,
+          },
+        },
+      });
+      responseJSON({ res, status: 200, data: listKwitansi });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error.message });
+    }
+  };
+
+  getListPengeluaran = async (req, res) => {
+    const { from_datetime, until_datetime } = req.query;
+    try {
+      const listPengeluaran = await PengeluaranModel.findAll({
+        where: {
+          createdAt: {
+            [Op.gte]: `${midNight(from_datetime)}`,
+            [Op.lte]: `${newStartDate(until_datetime)}`,
+          },
+        },
+      });
+      responseJSON({ res, status: 200, data: listPengeluaran });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error.message });
     }
   };
 }

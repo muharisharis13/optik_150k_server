@@ -94,7 +94,7 @@ class ControllerKwitansi {
         data: getDetailKwitansi,
       });
     } catch (error) {
-      responseJSON({ res, status: 500, data: error });
+      responseJSON({ res, status: 500, data: error.message });
     }
   };
 

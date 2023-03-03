@@ -10,8 +10,14 @@ const {
   getListTransaksiNew,
   getListTransaksiDP,
   getListTransaksiCabang,
+  getListBeli,
+  geListKwitansi,
+  getListPengeluaran
 } = require("../controller/report");
 
+router.get("/pengeluaran",getListPengeluaran)
+router.get("/kwitansi",geListKwitansi)
+router.get("/beli",getListBeli)
 router.get("/transaksi-cabang", getListTransaksiCabang);
 router.get("/transaksi-dp", getListTransaksiDP);
 router.get("/transaksi", getListTransaksi);
