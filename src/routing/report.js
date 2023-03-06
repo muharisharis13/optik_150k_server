@@ -12,12 +12,14 @@ const {
   getListTransaksiCabang,
   getListBeli,
   geListKwitansi,
-  getListPengeluaran
+  getListPengeluaran,
+  getListresumeKeuangan,
 } = require("../controller/report");
 
-router.get("/pengeluaran",getListPengeluaran)
-router.get("/kwitansi",geListKwitansi)
-router.get("/beli",getListBeli)
+router.get("/resume-keuangan", getListresumeKeuangan);
+router.get("/pengeluaran", getListPengeluaran);
+router.get("/kwitansi", geListKwitansi);
+router.get("/beli", getListBeli);
 router.get("/transaksi-cabang", getListTransaksiCabang);
 router.get("/transaksi-dp", getListTransaksiDP);
 router.get("/transaksi", getListTransaksi);

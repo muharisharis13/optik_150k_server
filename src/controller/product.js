@@ -7,8 +7,102 @@ const {
 } = require("../../utils");
 const { v4: uuidv4 } = require("uuid");
 const { Op } = require("sequelize");
+const converExcel = require("convert-excel-to-json");
+// Require library
+var xl = require("excel4node");
+
+// Create a new instance of a Workbook class
+var wb = new xl.Workbook();
+
+// Add Worksheets to the workbook
+var ws = wb.addWorksheet("Sheet 1");
+
+const arrColumn = [
+  "id",
+  "uuid",
+  "productCode",
+  "product_name",
+  "uom",
+  "capital_price",
+  "price",
+  "stock",
+  "min_stock",
+  "categoryId",
+  "serial_number",
+  "createdAt",
+  "updatedAt",
+];
 
 class ControllerProduct {
+  exportCSVProduct = async (req, res) => {
+    try {
+      const getListProduct = await ProductModel.findAll({
+        raw: true,
+      });
+
+      for (let i = 0; arrColumn.length > i; i++) {
+        ws.cell(1, i + 1).string(arrColumn[i]);
+      }
+
+      getListProduct.map((item, idx) => {
+        ws.cell(idx + 2, 1).number(item.id);
+        ws.cell(idx + 2, 2).string(item.uuid);
+        ws.cell(idx + 2, 3).string(item.productCode);
+        ws.cell(idx + 2, 4).string(item.product_name);
+        ws.cell(idx + 2, 5).string(item.uom);
+        ws.cell(idx + 2, 6).number(item.capital_price);
+        ws.cell(idx + 2, 7).number(item.price);
+        ws.cell(idx + 2, 8).number(item.stock);
+        ws.cell(idx + 2, 9).number(item.min_stock);
+        ws.cell(idx + 2, 10).number(item.categoryId);
+        ws.cell(idx + 2, 11).string(item.serial_number);
+        ws.cell(idx + 2, 12).string(item.createdAt);
+        ws.cell(idx + 2, 13).string(item.updatedAt);
+      });
+      wb.write("product_csv_" + new Date().getTime() + ".csv", res);
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error.message });
+    }
+  };
+  uploadCSVProduct = async (req, res) => {
+    const file = req.file;
+    try {
+      const getSourceFile = `./${file.path}`;
+
+      const result = converExcel({
+        sourceFile: getSourceFile,
+        header: { rows: 1 },
+        columnToKey: {
+          "*": "{{columnHeader}}",
+        },
+      });
+
+      // console.log({ result, file, getSourceFile });
+
+      result["Sheet 1"].map(async (item, idx) => {
+        await ProductModel.findOne({
+          where: {
+            uuid: item.uuid,
+          },
+        }).then(async (updateData) => {
+          await updateData.update({
+            productCode: item.productCode,
+            product_name: item.product_name,
+            uom: item.uom,
+            capital_price: item.capital_price,
+            price: item.price,
+            stock: item.stock,
+            min_stock: item.min_stock,
+            categoryId: item.categoryId,
+            serial_number: item.serial_number,
+          });
+        });
+      });
+      responseJSON({ res, status: 200, data: "Berhasil Import Product" });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error.message });
+    }
+  };
   addProduct = async (req, res) => {
     const {
       product_name,

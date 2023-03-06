@@ -72,22 +72,14 @@ class ControllerTransaksi {
               filter.payment_method1.toLowerCase() ==
               item.cara_bayar_name.toLowerCase()
           )
-          .map((item) => ({
-            total_transaksi: item?.total_transaksi,
-            payment_method1: item?.payment_method1,
-            creadtedAt: item.createdAt,
-          })),
+          .filter((filter) => filter.transaksi_status === "COMPLETE"),
         total: newTransaksi
           .filter(
             (filter) =>
               filter.payment_method1.toLowerCase() ==
               item.cara_bayar_name.toLowerCase()
           )
-          .map((item) => ({
-            total_transaksi: item?.total_transaksi,
-            payment_method1: item?.payment_method1,
-            payment_method2: item.payment_method2,
-          }))
+          .filter((filter) => filter.transaksi_status === "COMPLETE")
           .reduce((prev, curr) => prev + parseInt(curr?.total_transaksi), 0),
       }));
 
@@ -103,10 +95,9 @@ class ControllerTransaksi {
         },
       });
 
-      const newTotalTransaksiMethodCash = getTransaksiMethodCash.reduce(
-        (prev, curr) => prev + parseInt(curr.total_transaksi),
-        0
-      );
+      const newTotalTransaksiMethodCash = getTransaksiMethodCash
+        .filter((filter) => filter.transaksi_status === "COMPLETE")
+        .reduce((prev, curr) => prev + parseInt(curr.total_transaksi), 0);
 
       const newTotalPengeluaran = getPengeluaran?.reduce(
         (prev, curr) => prev + parseInt(curr.amount),
@@ -154,6 +145,13 @@ class ControllerTransaksi {
                 exclude: ["uuid", "createdAt", "updatedAt"],
               },
             },
+            {
+              model: TransaksiCabangModel,
+              as: "transaksi_cabang",
+              attributes: {
+                exclude: ["uuid", "createdAt", "updatedAt"],
+              },
+            },
           ],
         });
       const getListTransaksiDetail = await TransaksiDetailModel.findAll({
@@ -171,12 +169,26 @@ class ControllerTransaksi {
               exclude: ["uuid", "createdAt", "updatedAt"],
             },
           },
+          {
+            model: TransaksiModel,
+            as: "transaksi",
+            attributes: {
+              exclude: ["uuid", "createdAt", "updatedAt"],
+            },
+          },
         ],
       });
       responseJSON({
         res,
         status: 200,
-        data: getListTransaksiDetail.concat(getListTransaksiDetailCabang),
+        data: getListTransaksiDetail
+          .filter((filter) => filter.transaksi.transaksi_status === "COMPLETE")
+          .concat(
+            getListTransaksiDetailCabang.filter(
+              (filter) =>
+                filter.transaksi_cabang.transaksi_status === "COMPLETE"
+            )
+          ),
       });
     } catch (error) {
       responseJSON({ res, status: 500, data: error });

@@ -60,6 +60,7 @@ class ControllerReport {
 
     try {
       const listTransaksi = await TransaksiCabangModel.findAll({
+        transaksi_status: "COMPLETE",
         include: [
           {
             model: CabangModel,
@@ -103,12 +104,16 @@ class ControllerReport {
       const getListCategory = await CategoryModel.findAll();
       const getListCabang = await CabangModel.findAll();
 
-      const newListDetailTransaksi = listDetailTransaksi?.map((item) => ({
-        ...item.dataValues,
-        transaksi_info: listTransaksi?.find(
-          (find) => find?.id == item?.dataValues?.transaksiCabangId
-        ),
-      }));
+      const newListDetailTransaksi = listDetailTransaksi
+        ?.map((item) => ({
+          ...item.dataValues,
+          transaksi_info: listTransaksi?.find(
+            (find) => find?.id == item?.dataValues?.transaksiCabangId
+          ),
+        }))
+        .filter(
+          (filter) => filter.transaksi_info.transaksi_status === "COMPLETE"
+        );
 
       const cabang = getListCabang.map((item) => ({
         ...item.dataValues,
@@ -160,6 +165,7 @@ class ControllerReport {
 
     try {
       const listTransaksi = await TransaksiModel.findAll({
+        transaksi_status: "DP",
         include: [
           {
             model: CustomerModel,
@@ -203,12 +209,14 @@ class ControllerReport {
       const getListCategory = await CategoryModel.findAll();
       const getListCustomer = await CustomerModel.findAll();
 
-      const newListDetailTransaksi = listDetailTransaksi?.map((item) => ({
-        ...item.dataValues,
-        transaksi_info: listTransaksi?.find(
-          (find) => find?.id == item?.dataValues?.transaksiId
-        ),
-      }));
+      const newListDetailTransaksi = listDetailTransaksi
+        ?.map((item) => ({
+          ...item.dataValues,
+          transaksi_info: listTransaksi?.find(
+            (find) => find?.id == item?.dataValues?.transaksiId
+          ),
+        }))
+        .filter((filter) => filter.transaksi_info.transaksi_status === "DP");
 
       const customer = getListCustomer.map((item) => ({
         ...item.dataValues,
@@ -273,6 +281,7 @@ class ControllerReport {
 
     try {
       const listTransaksi = await TransaksiModel.findAll({
+        transaksi_status: "COMPLETE",
         include: [
           {
             model: CustomerModel,
@@ -318,17 +327,21 @@ class ControllerReport {
       const getListCategory = await CategoryModel.findAll();
       const getListCustomer = await CustomerModel.findAll();
 
-      const newListDetailTransaksi = listDetailTransaksi?.map((item) => ({
-        ...item.dataValues,
-        transaksi_info: listTransaksi?.find(
-          (find) => find?.id == item?.dataValues?.transaksiId
-        ),
-      }));
+      const newListDetailTransaksi = listDetailTransaksi
+        ?.map((item) => ({
+          ...item.dataValues,
+          transaksi_info: listTransaksi?.find(
+            (find) => find?.id == item?.dataValues?.transaksiId
+          ),
+        }))
+        .filter(
+          (filter) => filter.transaksi_info.transaksi_status === "COMPLETE"
+        );
 
       const customer = getListCustomer.map((item) => ({
         ...item.dataValues,
         listTransaksi: newListDetailTransaksi?.filter(
-          (filter) => item?.dataValues.id == filter?.transaksi_info?.customerId
+          (filter) => item?.dataValues?.id == filter?.transaksi_info?.customerId
         ),
       }));
 
@@ -521,7 +534,7 @@ class ControllerReport {
       const product = getListProduct?.map((item) => ({
         ...item.dataValues,
         listBeli: newListBeli?.filter(
-          (filter) => item?.dataValues?.productId === filter?.product?.id
+          (filter) => item?.dataValues?.id == filter?.productId
         ),
       }));
 
@@ -535,7 +548,7 @@ class ControllerReport {
         status: 200,
         data: supplierId
           ? newData.supplier?.filter((filter) => filter?.id == supplierId)
-          : supplierId
+          : productId
           ? newData.product?.filter((filter) => filter?.id == productId)
           : newData,
       });
@@ -573,6 +586,76 @@ class ControllerReport {
         },
       });
       responseJSON({ res, status: 200, data: listPengeluaran });
+    } catch (error) {
+      responseJSON({ res, status: 500, data: error.message });
+    }
+  };
+
+  getListresumeKeuangan = async (req, res) => {
+    const { from_datetime, until_datetime } = req.query;
+    try {
+      const getListTransaksi = await TransaksiModel.findAll({
+        where: {
+          transaksi_status: "COMPLETE",
+          createdAt: {
+            [Op.gte]: `${midNight(from_datetime)}`,
+            [Op.lte]: `${newStartDate(until_datetime)}`,
+          },
+        },
+      });
+
+      const getListTransaksiCabang = await TransaksiCabangModel.findAll({
+        where: {
+          transaksi_status: "COMPLETE",
+          createdAt: {
+            [Op.gte]: `${midNight(from_datetime)}`,
+            [Op.lte]: `${newStartDate(until_datetime)}`,
+          },
+        },
+      });
+
+      const getListCaraBayar = await CaraBayarModel.findAll();
+
+      const getListPengeluaran = await PengeluaranModel.findAll({
+        createdAt: {
+          [Op.gte]: `${midNight(from_datetime)}`,
+          [Op.lte]: `${newStartDate(until_datetime)}`,
+        },
+      });
+
+      // const resultAllPenjualan =
+
+      const newData = {
+        pengeluaran: getListPengeluaran.reduce(
+          (prev, curr) => prev + parseInt(curr.dataValues.amount),
+          0
+        ),
+        transaksi: getListCaraBayar.map((item) => ({
+          ...item.dataValues,
+          totalTransaksi: getListTransaksi
+            .filter(
+              (filter) =>
+                filter.dataValues.payment_method1.toLowerCase() ===
+                item.dataValues.cara_bayar_name.toLowerCase()
+            )
+            .map((item) => item.dataValues.total_transaksi)
+            .reduce((prev, curr) => prev + curr, 0),
+          totalTransaksiCabang: getListTransaksiCabang
+            .filter(
+              (filter) =>
+                filter.dataValues.payment_method1.toLowerCase() ===
+                item.dataValues.cara_bayar_name.toLowerCase()
+            )
+            .map((item) => item.dataValues.total_transaksi_cabang)
+            .reduce((prev, curr) => prev + curr, 0),
+        })),
+      };
+
+      responseJSON({
+        res,
+        status: 200,
+        data: newData,
+      });
     } catch (error) {
       responseJSON({ res, status: 500, data: error.message });
     }

@@ -14,6 +14,6 @@ let storageFile = (path) => {
 };
 
 module.exports = multer({
-  storage: storageFile("./uploads/img"),
+  storage: storageFile("./uploads"),
   limits: maxSize,
 });

@@ -7,6 +7,7 @@ const {
   DATEONLY,
   INET,
 } = require("sequelize");
+const TransaksiModel = require("./transaksi");
 const database = require("../../database");
 const product = require("./product");
 
@@ -33,12 +34,18 @@ const transaksi_detail = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
-transaksi_detail.sync({ force: false, alter: false });
+transaksi_detail.sync({ force: false });
 
 product.hasMany(transaksi_detail, {
   foreignKey: "productId",
 });
 
+TransaksiModel.hasMany(transaksi_detail, {
+  foreignKey: "transaksiId",
+});
+
 transaksi_detail.belongsTo(product);
+
+transaksi_detail.belongsTo(TransaksiModel);
 
 module.exports = transaksi_detail;
