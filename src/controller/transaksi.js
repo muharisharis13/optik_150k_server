@@ -287,7 +287,6 @@ class ControllerTransaksi {
       month = "0" + month;
     }
     var year = dateObj.getUTCFullYear();
-    var transaksi_date = `${year}-${month}-${date}`;
     var date_ = `${date}${month}${year}`;
 
     try {
@@ -329,51 +328,66 @@ class ControllerTransaksi {
         uuid: uuidv4(),
         notes: notes,
       }).then(async (result) => {
-        const transaksiId = result?.id;
-        listProduct?.map(async (item) => {
-          await TransaksiDetailModel.create({
-            uuid: uuidv4(),
-            transaksiId,
-            productId: item.productId,
-            price: item.price,
-            qty: item.qty,
-            discount: 0,
-            subtotal: item.subtotal,
-            notes: item.notes ?? "-",
-          });
+        try {
+          const transaksiId = result?.id;
+          console.log({ transaksiId });
+          listProduct?.map(async (item) => {
+            try {
+              await TransaksiDetailModel.create({
+                uuid: uuidv4(),
+                transaksiId,
+                productId: item.productId,
+                price: item.price,
+                qty: item.qty,
+                discount: 0,
+                subtotal: item.subtotal,
+                notes: item.notes ?? "-",
+              });
 
-          await ProductModel.findOne({
-            where: {
-              id: item.productId,
-            },
-          }).then((resultProduct) => {
-            resultProduct.update({
-              stock: parseInt(resultProduct.stock) - parseInt(item.qty),
-            });
+              await ProductModel.findOne({
+                where: {
+                  id: item.productId,
+                },
+              }).then((resultProduct) => {
+                if (resultProduct) {
+                  resultProduct.update({
+                    stock: parseInt(resultProduct.stock) - parseInt(item.qty),
+                  });
+                }
+              });
+            } catch (error) {
+              responseJSON({ res, status: 400, data: error.message });
+            }
           });
-        });
-        const getListTransaksiDetail = await TransaksiDetailModel.findAll({
-          where: {
-            transaksiId,
-          },
-          include: [
-            {
-              model: ProductModel,
-              as: "product",
-              attributes: {
-                exclude: ["uuid", "createdAt", "updatedAt"],
+          const getListTransaksiDetail = await TransaksiDetailModel.findAll({
+            include: [
+              {
+                model: ProductModel,
+                as: "product",
+                attributes: {
+                  exclude: ["uuid", "createdAt", "updatedAt"],
+                },
               },
+            ],
+            raw: true,
+          });
+          // console.log({ result: });
+          responseJSON({
+            res,
+            status: 200,
+            data: {
+              result,
+              listProduct: await getListTransaksiDetail.filter(
+                (filter) => filter.transaksiId == result?.id
+              ),
             },
-          ],
-        });
-        responseJSON({
-          res,
-          status: 200,
-          data: { result, listProduct: getListTransaksiDetail },
-        });
+          });
+        } catch (error) {
+          responseJSON({ res, status: 400, data: error.message });
+        }
       });
     } catch (error) {
-      responseJSON({ res, status: 400, data: error });
+      responseJSON({ res, status: 500, data: error.message });
     }
   };
 

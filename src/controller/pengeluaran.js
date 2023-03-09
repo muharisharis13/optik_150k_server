@@ -8,7 +8,7 @@ const { Op } = require("sequelize");
 
 class ControllerPengeluaran {
   addPengeluaran = async (req, res) => {
-    const { jenis_pengeluaran,amount,  keterangan, employee } = req.body;
+    const { jenis_pengeluaran, amount, keterangan, employee } = req.body;
     try {
       await PengeluaranModel.create({
         jenis_pengeluaran,
@@ -91,7 +91,7 @@ class ControllerPengeluaran {
 
   updatePengeluaran = async (req, res) => {
     const { uuid } = req.params;
-    const { jenis_pengeluaran,amount,  keterangan, employee } = req.body;
+    const { jenis_pengeluaran, amount, keterangan, employee } = req.body;
     try {
       const getDetailPengeluaran = await PengeluaranModel.findOne({
         where: {
@@ -108,7 +108,7 @@ class ControllerPengeluaran {
 
       responseJSON({ res, status: 200, data: updatePengeluaran });
     } catch (error) {
-      responseJSON({ res, status: 500, data: error });
+      responseJSON({ res, status: 500, data: error.message });
     }
   };
 }

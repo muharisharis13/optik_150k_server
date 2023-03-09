@@ -103,6 +103,21 @@ class ControllerBrokenProduct {
   deleteBrokenProduct = async (req, res) => {
     const { uuid } = req.params;
     try {
+      const getDetail = await BrokenProductModel.findOne({
+        where: {
+          uuid,
+        },
+      });
+
+      const getDetailProduct = await ProductModel.findOne({
+        where: {
+          id: getDetail.productId,
+        },
+      });
+      await getDetailProduct.update({
+        stock: parseInt(getDetailProduct.stock) + parseInt(getDetail.qty),
+      });
+
       const hapusBrokenProduct = await BrokenProductModel.destroy({
         where: {
           uuid,
@@ -127,6 +142,20 @@ class ControllerBrokenProduct {
         where: {
           uuid,
         },
+      });
+
+      const lastQty = parseInt(qty) - parseInt(getDetailBrokenProduct.qty);
+
+      console.log({ lastQty });
+
+      await ProductModel.findOne({
+        where: {
+          id: productId,
+        },
+      }).then(async (result) => {
+        await result.update({
+          stock: parseInt(result.stock) - lastQty,
+        });
       });
 
       const updateBrokenProduct = await getDetailBrokenProduct.update({

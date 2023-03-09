@@ -55,8 +55,14 @@ class ControllerReport {
   };
 
   getListTransaksiCabang = async (req, res) => {
-    const { from_datetime, until_datetime, cabangId, categoryId, productId } =
-      req.query;
+    const {
+      from_datetime,
+      until_datetime,
+      cabangId,
+      categoryId,
+      productId,
+      paymentMethod,
+    } = req.query;
 
     try {
       const listTransaksi = await TransaksiCabangModel.findAll({
@@ -101,8 +107,10 @@ class ControllerReport {
 
       const getListProduct = await ProductModel.findAll();
 
+      const getListCaraBayar = await CaraBayarModel.findAll();
+
       const getListCategory = await CategoryModel.findAll();
-      const getListCabang = await CabangModel.findAll();
+      const getListCustomer = await CabangModel.findAll();
 
       const newListDetailTransaksi = listDetailTransaksi
         ?.map((item) => ({
@@ -115,10 +123,19 @@ class ControllerReport {
           (filter) => filter.transaksi_info.transaksi_status === "COMPLETE"
         );
 
-      const cabang = getListCabang.map((item) => ({
+      const customer = getListCustomer.map((item) => ({
         ...item.dataValues,
         listTransaksi: newListDetailTransaksi?.filter(
-          (filter) => item?.dataValues.id == filter?.transaksi_info?.cabangId
+          (filter) => item?.dataValues?.id == filter?.transaksi_info?.cabangId
+        ),
+      }));
+
+      const payment_method1 = getListCaraBayar?.map((item) => ({
+        ...item.dataValues,
+        listTransaksi: newListDetailTransaksi?.filter(
+          (filter) =>
+            item?.dataValues.cara_bayar_name ==
+            filter?.transaksi_info?.payment_method1
         ),
       }));
 
@@ -137,21 +154,31 @@ class ControllerReport {
       }));
 
       const newData = {
-        cabang,
+        customer,
+        caraBayar: payment_method1,
         categoryProduct,
         product,
       };
+
       responseJSON({
         res,
         status: 200,
         data: cabangId
-          ? newData.cabang?.filter((filter) => filter?.id == cabangId)
+          ? newData.customer?.filter((filter) =>
+              cabangId ? filter?.id == cabangId : filter
+            )
           : categoryId
-          ? newData.categoryProduct?.filter(
-              (filter) => filter?.id == categoryId
+          ? newData.categoryProduct?.filter((filter) =>
+              categoryId ? filter?.id == categoryId : filter
             )
           : productId
-          ? newData.product?.filter((filter) => filter?.id == productId)
+          ? newData.product?.filter((filter) =>
+              productId ? filter?.id == productId : filter
+            )
+          : paymentMethod
+          ? newData.caraBayar?.filter((filter) =>
+              paymentMethod ? filter?.id == paymentMethod : filter
+            )
           : newData,
       });
     } catch (error) {
@@ -160,8 +187,14 @@ class ControllerReport {
   };
 
   getListTransaksiDP = async (req, res) => {
-    const { from_datetime, until_datetime, customerId, categoryId, productId } =
-      req.query;
+    const {
+      from_datetime,
+      until_datetime,
+      customerId,
+      categoryId,
+      productId,
+      paymentMethod,
+    } = req.query;
 
     try {
       const listTransaksi = await TransaksiModel.findAll({
@@ -206,6 +239,8 @@ class ControllerReport {
 
       const getListProduct = await ProductModel.findAll();
 
+      const getListCaraBayar = await CaraBayarModel.findAll();
+
       const getListCategory = await CategoryModel.findAll();
       const getListCustomer = await CustomerModel.findAll();
 
@@ -221,32 +256,36 @@ class ControllerReport {
       const customer = getListCustomer.map((item) => ({
         ...item.dataValues,
         listTransaksi: newListDetailTransaksi?.filter(
+          (filter) => item?.dataValues?.id == filter?.transaksi_info?.customerId
+        ),
+      }));
+
+      const payment_method1 = getListCaraBayar?.map((item) => ({
+        ...item.dataValues,
+        listTransaksi: newListDetailTransaksi?.filter(
           (filter) =>
-            item?.dataValues.id == filter?.transaksi_info?.customerId &&
-            filter?.transaksi_info?.transaksi_status === "DP"
+            item?.dataValues.cara_bayar_name ==
+            filter?.transaksi_info?.payment_method1
         ),
       }));
 
       const categoryProduct = getListCategory?.map((item) => ({
         ...item.dataValues,
         listTransaksi: newListDetailTransaksi?.filter(
-          (filter) =>
-            item?.dataValues?.id === filter?.product?.categoryId &&
-            filter?.transaksi_info?.transaksi_status === "DP"
+          (filter) => item?.dataValues?.id === filter?.product?.categoryId
         ),
       }));
 
       const product = getListProduct?.map((item) => ({
         ...item.dataValues,
         listTransaksi: newListDetailTransaksi?.filter(
-          (filter) =>
-            item?.dataValues?.id === filter?.product?.id &&
-            filter?.transaksi_info?.transaksi_status === "DP"
+          (filter) => item?.dataValues?.id === filter?.product?.id
         ),
       }));
 
       const newData = {
         customer,
+        caraBayar: payment_method1,
         categoryProduct,
         product,
       };
@@ -255,13 +294,21 @@ class ControllerReport {
         res,
         status: 200,
         data: customerId
-          ? newData.customer?.filter((filter) => filter?.id == customerId)
+          ? newData.customer?.filter((filter) =>
+              customerId ? filter?.id == customerId : filter
+            )
           : categoryId
-          ? newData.categoryProduct?.filter(
-              (filter) => filter?.id == categoryId
+          ? newData.categoryProduct?.filter((filter) =>
+              categoryId ? filter?.id == categoryId : filter
             )
           : productId
-          ? newData.product?.filter((filter) => filter?.id == productId)
+          ? newData.product?.filter((filter) =>
+              productId ? filter?.id == productId : filter
+            )
+          : paymentMethod
+          ? newData.caraBayar?.filter((filter) =>
+              paymentMethod ? filter?.id == paymentMethod : filter
+            )
           : newData,
       });
     } catch (error) {
@@ -349,17 +396,8 @@ class ControllerReport {
         ...item.dataValues,
         listTransaksi: newListDetailTransaksi?.filter(
           (filter) =>
-            item?.dataValues.cara_bayar_name.toLowerCase() ===
-            filter?.transaksi_info?.payment_method1.toLowerCase()
-        ),
-      }));
-
-      const payment_method2 = getListCaraBayar?.map((item) => ({
-        ...item.dataValues,
-        listTransaksi: newListDetailTransaksi?.filter(
-          (filter) =>
-            item?.dataValues.cara_bayar_name.toLowerCase() ===
-            filter?.transaksi_info?.payment_method2.toLowerCase()
+            item?.dataValues.cara_bayar_name ==
+            filter?.transaksi_info?.payment_method1
         ),
       }));
 
@@ -379,10 +417,7 @@ class ControllerReport {
 
       const newData = {
         customer,
-        caraBayar: {
-          payment_method1,
-          payment_method2,
-        },
+        caraBayar: payment_method1,
         categoryProduct,
         product,
       };
@@ -391,16 +426,20 @@ class ControllerReport {
         res,
         status: 200,
         data: customerId
-          ? newData.customer?.filter((filter) => filter?.id == customerId)
+          ? newData.customer?.filter((filter) =>
+              customerId ? filter?.id == customerId : filter
+            )
           : categoryId
-          ? newData.categoryProduct?.filter(
-              (filter) => filter?.id == categoryId
+          ? newData.categoryProduct?.filter((filter) =>
+              categoryId ? filter?.id == categoryId : filter
             )
           : productId
-          ? newData.product?.filter((filter) => filter?.id == productId)
+          ? newData.product?.filter((filter) =>
+              productId ? filter?.id == productId : filter
+            )
           : paymentMethod
-          ? newData.caraBayar.payment_method1?.filter(
-              (filter) => filter?.id == paymentMethod
+          ? newData.caraBayar?.filter((filter) =>
+              paymentMethod ? filter?.id == paymentMethod : filter
             )
           : newData,
       });
@@ -547,9 +586,13 @@ class ControllerReport {
         res,
         status: 200,
         data: supplierId
-          ? newData.supplier?.filter((filter) => filter?.id == supplierId)
+          ? newData.supplier?.filter(
+              (filter) => filter?.id == supplierId ?? filter
+            )
           : productId
-          ? newData.product?.filter((filter) => filter?.id == productId)
+          ? newData.product?.filter(
+              (filter) => filter?.id == productId ?? filter
+            )
           : newData,
       });
     } catch (error) {
@@ -635,7 +678,7 @@ class ControllerReport {
           totalTransaksi: getListTransaksi
             .filter(
               (filter) =>
-                filter.dataValues.payment_method1.toLowerCase() ===
+                filter.dataValues.payment_method1 ===
                 item.dataValues.cara_bayar_name.toLowerCase()
             )
             .map((item) => item.dataValues.total_transaksi)

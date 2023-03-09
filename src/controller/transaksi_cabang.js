@@ -80,7 +80,7 @@ class ControllerTransaksiCabang {
         uang2,
         payment_method2,
         transaksi_status: "COMPLETE",
-        total_uang: parseInt(getTransaksiCabang?.total_uang) + parseInt(uang2),
+        uang_total: parseInt(getTransaksiCabang?.uang_total) + parseInt(uang2),
       });
       responseJSON({ res, status: 200, data: updatePelunasanTransakasiCabang });
     } catch (error) {
