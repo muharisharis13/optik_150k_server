@@ -64,19 +64,21 @@ class ControllerTransaksi {
         }))
         .concat(getTransaksi);
 
+        console.log({getCaraBayar})
+
       const metodePembayaran1 = getCaraBayar?.map((item) => ({
         type: item.cara_bayar_name,
         result: newTransaksi
           .filter(
             (filter) =>
-              filter.payment_method1.toLowerCase() ==
+              filter.payment_method1.toLowerCase() ===
               item.cara_bayar_name.toLowerCase()
           )
           .filter((filter) => filter.transaksi_status === "COMPLETE"),
         total: newTransaksi
           .filter(
             (filter) =>
-              filter.payment_method1.toLowerCase() ==
+              filter.payment_method1.toLowerCase() ===
               item.cara_bayar_name.toLowerCase()
           )
           .filter((filter) => filter.transaksi_status === "COMPLETE")
@@ -103,6 +105,8 @@ class ControllerTransaksi {
         (prev, curr) => prev + parseInt(curr.amount),
         0
       );
+
+      console.log({metodePembayaran1})
 
       responseJSON({
         res,

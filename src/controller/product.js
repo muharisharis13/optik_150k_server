@@ -122,8 +122,10 @@ class ControllerProduct {
       });
       const { count, rows } = getCountProduct;
 
+      console.log({rows})
+
       let product_code_new =
-        parseInt(rows[0].productCode?.split("BR")[1] || 0) + 1;
+        parseInt(rows[0]?.productCode?.split("BR")[1] || 0) + 1;
       console.log({ product_code_new });
       product_code_new = "BR" + product_code_new?.toString().padStart(7, "0");
       await ProductModel.create({
@@ -153,12 +155,8 @@ class ControllerProduct {
     } catch (error) {
       res.status(400).json({
         code: 400,
-        data: error.errors?.map((item) => ({
-          path: item.path,
-          type: item.type,
-          validatorKey: item.validatorKey,
-        })),
         message: status[400],
+        data:error.message
       });
     }
   };

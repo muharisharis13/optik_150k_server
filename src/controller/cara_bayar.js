@@ -17,7 +17,7 @@ class ControllerCaraBayar {
         responseJSON({ res, status: 200, data: result });
       });
     } catch (error) {
-      responseJSON({ res, status: 500, data: error });
+      responseJSON({ res, status: 500, data: error.message });
     }
   };
 
@@ -102,7 +102,7 @@ class ControllerCaraBayar {
 
       responseJSON({ res, status: 200, data: updateCaraBayar });
     } catch (error) {
-      responseJSON({ res, status: 500, data: result });
+      responseJSON({ res, status: 500, data: error });
     }
   };
 }

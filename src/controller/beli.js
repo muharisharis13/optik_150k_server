@@ -21,7 +21,7 @@ class ControllerBeli {
     const { count, rows } = getCountBeli;
 
     let beli_faktur_new =
-      parseInt(rows[0].no_faktur_beli?.split("BI-")[1] || 0) + 1;
+      parseInt(rows[0]?.no_faktur_beli?.split("BI-")[1] || 0) + 1;
     var no_faktur_beli = "BI-" + beli_faktur_new?.toString().padStart(7, "0");
 
     try {
@@ -48,6 +48,8 @@ class ControllerBeli {
           }).then(async (resultProduct) => {
             await resultProduct.update({
               stock: parseInt(resultProduct?.stock) + parseInt(item?.qty),
+              price:item?.price,
+              capital_price:item?.capital_price
             });
           });
         });

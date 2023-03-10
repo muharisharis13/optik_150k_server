@@ -678,7 +678,7 @@ class ControllerReport {
           totalTransaksi: getListTransaksi
             .filter(
               (filter) =>
-                filter.dataValues.payment_method1 ===
+                filter.dataValues.payment_method1.toLowerCase() ===
                 item.dataValues.cara_bayar_name.toLowerCase()
             )
             .map((item) => item.dataValues.total_transaksi)
@@ -686,7 +686,7 @@ class ControllerReport {
           totalTransaksiCabang: getListTransaksiCabang
             .filter(
               (filter) =>
-                filter.dataValues.payment_method1.toLowerCase() ===
+                filter.dataValues.payment_method2.toLowerCase() ===
                 item.dataValues.cara_bayar_name.toLowerCase()
             )
             .map((item) => item.dataValues.total_transaksi_cabang)
