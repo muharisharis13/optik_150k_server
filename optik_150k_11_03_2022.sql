@@ -2,8 +2,8 @@
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Waktu pembuatan: 11 Mar 2023 pada 07.44
+-- Host: localhost
+-- Waktu pembuatan: 11 Mar 2023 pada 11.48
 -- Versi server: 10.4.27-MariaDB
 -- Versi PHP: 7.4.33
 
@@ -45,9 +45,8 @@ CREATE TABLE `admin` (
 INSERT INTO `admin` (`id`, `uuid`, `username`, `password`, `role`, `name`, `createdAt`, `updatedAt`) VALUES
 (1, 'a731d365-c456-41c8-84ad-48c8369ead4e', 'kasir', 'c7911af3adbd12a035b289556d96470a', 'kasir', 'KASIR NAMA', '2023-02-13 13:59:43', '2023-02-13 13:59:43'),
 (2, '42359663-98fa-4ea3-8902-dad204ed6bda', 'admin', '21232f297a57a5a743894a0e4a801fc3', 'admin', 'Muharis', '2023-02-20 22:36:09', '2023-02-20 22:36:09'),
-(3, '18981180-5d94-4f19-9015-9aedcff94d25', 'kasir1', '4297f44b13955235245b2497399d7a93', 'kasir', 'rahmat', '2023-03-10 20:28:06', '2023-03-10 20:28:35'),
-(7, '711e6d73-f15d-449c-9a1a-41b2ca1c5ef4', 'penjualan', '13bf2c8effae21d17a277520aa9b9277', 'penjualan', 'penjualan', '2023-03-10 23:57:03', '2023-03-10 23:57:03'),
-(8, '6c41442e-d740-4c57-9ed5-2d14a7fe9bb6', 'pembelian', '025b94c9e65037bb7317c8e25389155d', 'pembelian', 'pembelian', '2023-03-11 00:01:49', '2023-03-11 00:01:49');
+(4, '40126708-6855-4dd0-9634-d9826b92058d', 'kasir_new', 'c7911af3adbd12a035b289556d96470a', 'kasir', 'kasir baru', '2023-03-09 09:13:59', '2023-03-09 09:13:59'),
+(5, '69b13cb5-71d3-41ac-afb0-003bbcd97c99', 'pembelian', '025b94c9e65037bb7317c8e25389155d', 'pembelian', 'pembelian', '2023-03-11 16:36:39', '2023-03-11 16:36:39');
 
 -- --------------------------------------------------------
 
@@ -229,7 +228,8 @@ CREATE TABLE `product` (
   `categoryId` int(11) NOT NULL,
   `serial_number` varchar(255) DEFAULT NULL,
   `createdAt` datetime NOT NULL,
-  `updatedAt` datetime NOT NULL
+  `updatedAt` datetime NOT NULL,
+  `branch_price` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -262,6 +262,13 @@ CREATE TABLE `token` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `token`
+--
+
+INSERT INTO `token` (`id`, `uuid_admin`, `token`, `refresh_token`, `createdAt`, `updatedAt`) VALUES
+(1, '2', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXVpZCI6IjQyMzU5NjYzLTk4ZmEtNGVhMy04OTAyLWRhZDIwNGVkNmJkYSIsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6IjIxMjMyZjI5N2E1N2E1YTc0Mzg5NGEwZTRhODAxZmMzIiwicm9sZSI6ImFkbWluIiwibmFtZSI6Ik11aGFyaXMiLCJjcmVhdGVkQXQiOiIyMDIzLTAyLTIwIDIyOjM2OjA5IiwidXBkYXRlZEF0IjoiMjAyMy0wMi0yMCAyMjozNjowOSIsImlhdCI6MTY3ODUyODAxNn0.7bCJWnN_Spu-Zwoav8KKf_-w4XtqZxkaSNE5pLk1BNU', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXVpZCI6IjQyMzU5NjYzLTk4ZmEtNGVhMy04OTAyLWRhZDIwNGVkNmJkYSIsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6IjIxMjMyZjI5N2E1N2E1YTc0Mzg5NGEwZTRhODAxZmMzIiwicm9sZSI6ImFkbWluIiwibmFtZSI6Ik11aGFyaXMiLCJjcmVhdGVkQXQiOiIyMDIzLTAyLTIwIDIyOjM2OjA5IiwidXBkYXRlZEF0IjoiMjAyMy0wMi0yMCAyMjozNjowOSIsImlhdCI6MTY3ODUyODAxNn0.EuZpksotT3P1sEGo0XJo5GzAbfqKjbG09HfjjD89_2w', '2023-03-11 16:46:56', '2023-03-11 16:46:56');
 
 -- --------------------------------------------------------
 
@@ -445,7 +452,9 @@ ALTER TABLE `pengeluaran`
 ALTER TABLE `product`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `product_code` (`productCode`),
-  ADD UNIQUE KEY `uuid` (`uuid`) USING HASH;
+  ADD UNIQUE KEY `productCode` (`productCode`),
+  ADD UNIQUE KEY `uuid` (`uuid`) USING HASH,
+  ADD UNIQUE KEY `uuid_2` (`uuid`) USING HASH;
 
 --
 -- Indeks untuk tabel `supplier`
@@ -533,7 +542,7 @@ ALTER TABLE `transaksi_detail`
 -- AUTO_INCREMENT untuk tabel `admin`
 --
 ALTER TABLE `admin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT untuk tabel `beli`
@@ -551,7 +560,7 @@ ALTER TABLE `beli_detail`
 -- AUTO_INCREMENT untuk tabel `broken_product`
 --
 ALTER TABLE `broken_product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT untuk tabel `broken_product_2`
@@ -581,25 +590,25 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT untuk tabel `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT untuk tabel `kwitansi`
 --
 ALTER TABLE `kwitansi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT untuk tabel `pengeluaran`
 --
 ALTER TABLE `pengeluaran`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT untuk tabel `product`
 --
 ALTER TABLE `product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT untuk tabel `supplier`
@@ -611,13 +620,13 @@ ALTER TABLE `supplier`
 -- AUTO_INCREMENT untuk tabel `token`
 --
 ALTER TABLE `token`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT untuk tabel `transaksi`
 --
 ALTER TABLE `transaksi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=117;
 
 --
 -- AUTO_INCREMENT untuk tabel `transaksi_cabang`
@@ -635,7 +644,7 @@ ALTER TABLE `transaksi_cabang_detail`
 -- AUTO_INCREMENT untuk tabel `transaksi_detail`
 --
 ALTER TABLE `transaksi_detail`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

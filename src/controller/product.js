@@ -24,6 +24,7 @@ const arrColumn = [
   "product_name",
   "uom",
   "capital_price",
+  "branch_price",
   "price",
   "stock",
   "min_stock",
@@ -51,13 +52,14 @@ class ControllerProduct {
         ws.cell(idx + 2, 4).string(item.product_name);
         ws.cell(idx + 2, 5).string(item.uom);
         ws.cell(idx + 2, 6).number(item.capital_price);
-        ws.cell(idx + 2, 7).number(item.price);
-        ws.cell(idx + 2, 8).number(item.stock);
-        ws.cell(idx + 2, 9).number(item.min_stock);
-        ws.cell(idx + 2, 10).number(item.categoryId);
-        ws.cell(idx + 2, 11).string(item.serial_number);
-        ws.cell(idx + 2, 12).string(item.createdAt);
-        ws.cell(idx + 2, 13).string(item.updatedAt);
+        ws.cell(idx + 2, 7).number(item.branch_price);
+        ws.cell(idx + 2, 8).number(item.price);
+        ws.cell(idx + 2, 9).number(item.stock);
+        ws.cell(idx + 2, 10).number(item.min_stock);
+        ws.cell(idx + 2, 11).number(item.categoryId);
+        ws.cell(idx + 2, 12).string(item.serial_number);
+        ws.cell(idx + 2, 13).string(item.createdAt);
+        ws.cell(idx + 2, 14).string(item.updatedAt);
       });
       wb.write("product_csv_" + new Date().getTime() + ".csv", res);
     } catch (error) {
@@ -79,25 +81,100 @@ class ControllerProduct {
 
       // console.log({ result, file, getSourceFile });
 
-      result["Sheet 1"].map(async (item, idx) => {
-        await ProductModel.findOne({
+      const sheet1 = result["Sheet 1"];
+
+      for (let i = 0; i < sheet1.length; i++) {
+        const product = await ProductModel.findOne({
           where: {
-            uuid: item.uuid,
+            productCode: sheet1[i].productCode,
           },
-        }).then(async (updateData) => {
-          await updateData.update({
-            productCode: item.productCode,
-            product_name: item.product_name,
-            uom: item.uom,
-            capital_price: item.capital_price,
-            price: item.price,
-            stock: item.stock,
-            min_stock: item.min_stock,
-            categoryId: item.categoryId,
-            serial_number: item.serial_number,
-          });
         });
-      });
+
+        if (product?.productCode == sheet1[i].productCode) {
+          console.log("ada barang", sheet1[i].uuid);
+          await product.update({
+            productCode: sheet1[i].productCode,
+            product_name: sheet1[i].product_name,
+            uom: sheet1[i].uom,
+            branch_price: sheet1[i].branch_price,
+            capital_price: sheet1[i].capital_price,
+            price: sheet1[i].price,
+            stock: sheet1[i].stock,
+            min_stock: sheet1[i].min_stock,
+            categoryId: sheet1[i].categoryId,
+            serial_number: sheet1[i].serial_number,
+          });
+        } else {
+          console.log("tidak ada barang", sheet1[i].uuid);
+
+          try {
+            await ProductModel.create({
+              productCode: sheet1[i].productCode,
+              product_name: sheet1[i].product_name,
+              uom: sheet1[i].uom,
+              branch_price: sheet1[i].branch_price,
+              capital_price: sheet1[i].capital_price,
+              price: sheet1[i].price,
+              stock: sheet1[i].stock,
+              min_stock: sheet1[i].min_stock,
+              categoryId: sheet1[i].categoryId,
+              serial_number: sheet1[i].serial_number,
+              uuid: uuidv4(),
+            });
+          } catch (error) {
+            console.log({ 400: error.message });
+          }
+        }
+      }
+
+      // result["Sheet 1"].map(async (item, idx) => {
+      //   const product = await ProductModel.findOne({
+      //     where: {
+      //       uuid: item.uuid,
+      //     },
+      //   });
+
+      //   if (
+      //     product?.uuid == item.uuid &&
+      //     product?.productCode == item.productCode
+      //   ) {
+      //     console.log("ada barang", item.uuid);
+      //     await product.update({
+      //       productCode: item.productCode,
+      //       product_name: item.product_name,
+      //       uom: item.uom,
+      //       branch_price: item.branch_price,
+      //       capital_price: item.capital_price,
+      //       price: item.price,
+      //       stock: item.stock,
+      //       min_stock: item.min_stock,
+      //       categoryId: item.categoryId,
+      //       serial_number: item.serial_number,
+      //     });
+      //   } else {
+      //     console.log("tidak ada barang", item.uuid);
+
+      //     try {
+      //       await ProductModel.create({
+      //         productCode: item.productCode,
+      //         product_name: item.product_name,
+      //         uom: item.uom,
+      //         branch_price: item.branch_price,
+      //         capital_price: item.capital_price,
+      //         price: item.price,
+      //         stock: item.stock,
+      //         min_stock: item.min_stock,
+      //         categoryId: item.categoryId,
+      //         serial_number: item.serial_number,
+      //         uuid: uuidv4(),
+      //       });
+      //     } catch (error) {
+      //       console.log({ 400: error.message });
+      //     }
+      //   }
+      // });
+
+      console.log({ result: result["Sheet 1"] });
       responseJSON({ res, status: 200, data: "Berhasil Import Product" });
     } catch (error) {
       responseJSON({ res, status: 500, data: error.message });
@@ -108,6 +185,7 @@ class ControllerProduct {
       product_name,
       uom,
       capital_price,
+      branch_price,
       price,
       stock,
       min_stock,
@@ -122,7 +200,7 @@ class ControllerProduct {
       });
       const { count, rows } = getCountProduct;
 
-      console.log({rows})
+      console.log({ rows });
 
       let product_code_new =
         parseInt(rows[0]?.productCode?.split("BR")[1] || 0) + 1;
@@ -132,6 +210,7 @@ class ControllerProduct {
         productCode: product_code_new,
         product_name,
         uom,
+        branch_price,
         capital_price,
         price,
         stock,
@@ -156,7 +235,7 @@ class ControllerProduct {
       res.status(400).json({
         code: 400,
         message: status[400],
-        data:error.message
+        data: error.message,
       });
     }
   };

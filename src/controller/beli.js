@@ -36,7 +36,7 @@ class ControllerBeli {
             beliId: result?.id,
             uuid: uuidv4(),
             productId: item?.productId,
-            price: item?.price,
+            price: item?.capital_price,
             qty: item?.qty,
             subtotal: item?.subtotal,
           });
@@ -48,8 +48,9 @@ class ControllerBeli {
           }).then(async (resultProduct) => {
             await resultProduct.update({
               stock: parseInt(resultProduct?.stock) + parseInt(item?.qty),
-              price:item?.price,
-              capital_price:item?.capital_price
+              price: item?.price,
+              capital_price: item?.capital_price,
+              branch_price: item?.branch_price,
             });
           });
         });

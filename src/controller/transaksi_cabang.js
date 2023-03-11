@@ -171,7 +171,7 @@ class ControllerTransaksiCabang {
             uuid: uuidv4(),
             transaksiCabangId,
             productId: item?.productId,
-            price: item?.price,
+            price: item?.branch_price,
             qty: item?.qty,
             discount: 0,
             subtotal: item?.subtotal,

@@ -1,6 +1,6 @@
-const { STRING, DOUBLE, TEXT,ENUM,INTEGER } = require("sequelize");
+const { STRING, DOUBLE, TEXT, ENUM, INTEGER } = require("sequelize");
 const database = require("../../database");
-const CategoryModel = require("./category")
+const CategoryModel = require("./category");
 
 const product = database.define(
   "product",
@@ -19,8 +19,9 @@ const product = database.define(
       },
     },
     product_name: { type: STRING(100), allowNull: false },
-    uom: { type:  ENUM(["buah"]), allowNull: false },
-    capital_price: { type:DOUBLE, allowNull: false },
+    uom: { type: ENUM(["buah"]), allowNull: false },
+    branch_price: { type: DOUBLE, allowNull: false },
+    capital_price: { type: DOUBLE, allowNull: false },
     price: { type: DOUBLE, allowNull: false },
     stock: { type: INTEGER, allowNull: false },
     min_stock: { type: INTEGER, allowNull: false },
@@ -30,13 +31,12 @@ const product = database.define(
   { timestamps: true, freezeTableName: true }
 );
 
+product.sync({ alter: false });
 
-product.sync()
+CategoryModel.hasMany(product, {
+  foreignKey: "categoryId",
+});
 
-CategoryModel.hasMany(product,{
-  foreignKey:"categoryId"
-})
+product.belongsTo(CategoryModel);
 
-product.belongsTo(CategoryModel)
-
-module.exports = product
+module.exports = product;
