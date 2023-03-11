@@ -83,6 +83,8 @@ class ControllerProduct {
 
       const sheet1 = result["Sheet 1"];
 
+      console.log({ sheet1 });
+
       for (let i = 0; i < sheet1.length; i++) {
         const product = await ProductModel.findOne({
           where: {
@@ -363,6 +365,7 @@ class ControllerProduct {
       product_name,
       uom,
       capital_price,
+      branch_price,
       price,
       stock,
       min_stock,
@@ -381,6 +384,7 @@ class ControllerProduct {
         product_name,
         uom,
         capital_price,
+        branch_price,
         price,
         stock,
         min_stock,
