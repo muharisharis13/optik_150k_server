@@ -1,6 +1,6 @@
 const sequelize = require("sequelize");
 
-const DB_NAME = "optik_150k";
+const DB_NAME = "optik_150k2";
 const DB_USER = "root";
 const DB_PASS = "";
 const DB_HOST = "localhost";

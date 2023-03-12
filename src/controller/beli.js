@@ -48,9 +48,6 @@ class ControllerBeli {
           }).then(async (resultProduct) => {
             await resultProduct.update({
               stock: parseInt(resultProduct?.stock) + parseInt(item?.qty),
-              price: item?.price,
-              capital_price: item?.capital_price,
-              branch_price: item?.branch_price,
             });
           });
         });
