@@ -64,7 +64,7 @@ class ControllerTransaksi {
         }))
         .concat(getTransaksi);
 
-        console.log({getCaraBayar})
+      console.log({ getCaraBayar });
 
       const metodePembayaran1 = getCaraBayar?.map((item) => ({
         type: item.cara_bayar_name,
@@ -106,7 +106,7 @@ class ControllerTransaksi {
         0
       );
 
-      console.log({metodePembayaran1})
+      console.log({ metodePembayaran1 });
 
       responseJSON({
         res,
@@ -360,7 +360,8 @@ class ControllerTransaksi {
                 }
               });
             } catch (error) {
-              responseJSON({ res, status: 400, data: error.message });
+              // responseJSON({ res, status: 400, data: error.message });
+              console.log({ error: error.message });
             }
           });
           const getListTransaksiDetail = await TransaksiDetailModel.findAll({
