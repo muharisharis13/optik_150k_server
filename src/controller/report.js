@@ -639,7 +639,6 @@ class ControllerReport {
     try {
       const getListTransaksi = await TransaksiModel.findAll({
         where: {
-          transaksi_status: "COMPLETE",
           createdAt: {
             [Op.gte]: `${midNight(from_datetime)}`,
             [Op.lte]: `${newStartDate(until_datetime)}`,
@@ -647,50 +646,68 @@ class ControllerReport {
         },
       });
 
-      const getListTransaksiCabang = await TransaksiCabangModel.findAll({
-        where: {
-          transaksi_status: "COMPLETE",
-          createdAt: {
-            [Op.gte]: `${midNight(from_datetime)}`,
-            [Op.lte]: `${newStartDate(until_datetime)}`,
-          },
-        },
-      });
+      // const getListTransaksiCabang = await TransaksiCabangModel.findAll({
+      //   where: {
+      //     transaksi_status: "COMPLETE",
+      //     createdAt: {
+      //       [Op.gte]: `${midNight(from_datetime)}`,
+      //       [Op.lte]: `${newStartDate(until_datetime)}`,
+      //     },
+      //   },
+      // });
 
       const getListCaraBayar = await CaraBayarModel.findAll();
 
       const getListPengeluaran = await PengeluaranModel.findAll({
-        createdAt: {
-          [Op.gte]: `${midNight(from_datetime)}`,
-          [Op.lte]: `${newStartDate(until_datetime)}`,
+        where: {
+          createdAt: {
+            [Op.gte]: `${midNight(from_datetime)}`,
+            [Op.lte]: `${newStartDate(until_datetime)}`,
+          },
         },
       });
 
-      // const resultAllPenjualan =
+      const payment1 = (item) =>
+        getListTransaksi
+          .filter(
+            (filter) =>
+              filter.dataValues.payment_method1.toLowerCase() ===
+              item.dataValues.cara_bayar_name.toLowerCase()
+          )
+          .filter(
+            (filter) =>
+              filter.dataValues.transaksi_status === "COMPLETE" ||
+              filter.dataValues.transaksi_status === "DP"
+          )
+          .map((item) => item.dataValues.uang1)
+          .reduce((prev, curr) => prev + curr, 0);
+
+      const payment2 = (item) =>
+        getListTransaksi
+          .filter(
+            (filter) =>
+              filter.dataValues.payment_method2.toLowerCase() ===
+              item.dataValues.cara_bayar_name.toLowerCase()
+          )
+          .filter(
+            (filter) =>
+              filter.dataValues.transaksi_status === "COMPLETE" ||
+              filter.dataValues.transaksi_status === "DP"
+          )
+          .map((item) => item.dataValues.uang2)
+          .reduce((prev, curr) => prev + curr, 0);
 
       const newData = {
         pengeluaran: getListPengeluaran.reduce(
           (prev, curr) => prev + parseInt(curr.dataValues.amount),
           0
         ),
+
         transaksi: getListCaraBayar.map((item) => ({
           ...item.dataValues,
-          totalTransaksi: getListTransaksi
-            .filter(
-              (filter) =>
-                filter.dataValues.payment_method1.toLowerCase() ===
-                item.dataValues.cara_bayar_name.toLowerCase()
-            )
-            .map((item) => item.dataValues.total_transaksi)
-            .reduce((prev, curr) => prev + curr, 0),
-          totalTransaksiCabang: getListTransaksiCabang
-            .filter(
-              (filter) =>
-                filter.dataValues.payment_method2.toLowerCase() ===
-                item.dataValues.cara_bayar_name.toLowerCase()
-            )
-            .map((item) => item.dataValues.total_transaksi_cabang)
-            .reduce((prev, curr) => prev + curr, 0),
+          payment1: payment1(item),
+          payment2: payment2(item),
+          totalTransaksi: payment1(item) + payment2(item),
         })),
       };
 
