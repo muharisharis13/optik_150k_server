@@ -46,7 +46,7 @@ class ControllerCustomer {
     };
     try {
       const getCustomer = await CustomerModel.findAndCountAll({
-        where: condition,
+        like: condition,
         limit,
         offset,
         order: [["id", "DESC"]],

@@ -37,15 +37,16 @@ class ControllerTransaksi {
         },
         raw: true,
       });
-      const getTransaksiCabang = await TransaksiCabangModel.findAll({
-        where: {
-          createdAt: {
-            [Op.gte]: midNight,
-            [Op.lte]: new Date(new Date() + 24 * 60 * 60 * 1000),
-          },
-        },
-        raw: true,
-      });
+
+      // const getTransaksiCabang = await TransaksiCabangModel.findAll({
+      //   where: {
+      //     createdAt: {
+      //       [Op.gte]: midNight,
+      //       [Op.lte]: new Date(new Date() + 24 * 60 * 60 * 1000),
+      //     },
+      //   },
+      //   raw: true,
+      // });
 
       const getPengeluaran = await PengeluaranModel.findAll({
         where: {
@@ -57,33 +58,54 @@ class ControllerTransaksi {
         raw: true,
       });
 
-      const newTransaksi = getTransaksiCabang
-        ?.map((item) => ({
-          ...item,
-          total_transaksi: item.total_transaksi_cabang,
-        }))
-        .concat(getTransaksi);
-
-      console.log({ getCaraBayar });
-
+      const newTransaksi = getTransaksi;
+      const payment1 = (item) =>
+        newTransaksi
+          .filter(
+            (filter) =>
+              filter.payment_method1.toLowerCase() ===
+              item.cara_bayar_name.toLowerCase()
+          )
+          .filter(
+            (filter) =>
+              filter.transaksi_status === "COMPLETE" ||
+              filter.transaksi_status === "DP"
+          )
+          .map((item) => ({
+            uang1: item.uang1,
+          }));
+      const payment2 = (item) =>
+        newTransaksi
+          .filter(
+            (filter) =>
+              filter.payment_method2.toLowerCase() ===
+              item.cara_bayar_name.toLowerCase()
+          )
+          .filter(
+            (filter) =>
+              filter.transaksi_status === "COMPLETE" ||
+              filter.transaksi_status === "DP"
+          )
+          .map((item) => ({
+            uang2: item.uang2,
+          }));
       const metodePembayaran1 = getCaraBayar?.map((item) => ({
         type: item.cara_bayar_name,
-        result: newTransaksi
-          .filter(
-            (filter) =>
-              filter.payment_method1.toLowerCase() ===
-              item.cara_bayar_name.toLowerCase()
+        result: payment1(item).concat(
+          payment2(item).map((item) => ({
+            uang1: item.uang2,
+          }))
+        ),
+        total: payment1(item)
+          .concat(
+            payment2(item).map((item) => ({
+              uang1: item.uang2,
+            }))
           )
-          .filter((filter) => filter.transaksi_status === "COMPLETE"),
-        total: newTransaksi
-          .filter(
-            (filter) =>
-              filter.payment_method1.toLowerCase() ===
-              item.cara_bayar_name.toLowerCase()
-          )
-          .filter((filter) => filter.transaksi_status === "COMPLETE")
-          .reduce((prev, curr) => prev + parseInt(curr?.total_transaksi), 0),
+          .reduce((prev, curr) => prev + parseInt(curr?.uang1), 0),
       }));
+
+      console.log({ metodePembayaran1 });
 
       const getTransaksiMethodCash = await TransaksiModel.findAll({
         where: {
@@ -105,8 +127,6 @@ class ControllerTransaksi {
         (prev, curr) => prev + parseInt(curr.amount),
         0
       );
-
-      console.log({ metodePembayaran1 });
 
       responseJSON({
         res,
