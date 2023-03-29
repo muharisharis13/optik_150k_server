@@ -114,7 +114,7 @@ class ControllerTransaksi {
             [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000),
           },
           payment_method1: {
-            [Op.like]: `%Cash%`,
+            [Op.like]: `%cash`,
           },
         },
       });
