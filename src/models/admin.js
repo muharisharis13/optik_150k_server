@@ -1,4 +1,4 @@
-const { STRING, ENUM, TEXT } = require("sequelize");
+const { STRING, ENUM, TEXT, BOOLEAN } = require("sequelize");
 const database = require("../../database");
 
 const admin = database.define(
@@ -23,10 +23,16 @@ const admin = database.define(
       allowNull: false,
     },
     name: { type: STRING(100), allowNull: false },
+    active: {
+      type: BOOLEAN,
+      defaultValue: true,
+    },
   },
   { timestamps: true, freezeTableName: true }
 );
 
-admin.sync()
+admin.sync({
+  alter: true,
+});
 
-module.exports = admin
+module.exports = admin;

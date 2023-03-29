@@ -15,7 +15,6 @@ class ControllerAdmin {
   logout = async (req, res) => {
     const { id_admin, refresh_token } = req.body;
 
-
     try {
       const getToken = await ModelToken.destroy({
         where: {
@@ -25,7 +24,7 @@ class ControllerAdmin {
         raw: true,
       });
 
-      console.log({ req: getToken })
+      console.log({ req: getToken });
 
       try {
         res.status(200).json({
@@ -40,8 +39,6 @@ class ControllerAdmin {
           data: error.message,
         });
       }
-
-
     } catch (error) {
       res.status(500).json({
         code: 500,
@@ -206,7 +203,7 @@ class ControllerAdmin {
 
   updateAdmin = async (req, res) => {
     const { uuid } = req.params;
-    const { name, username, role, password } = req.body;
+    const { name, username, role, password, active } = req.body;
     try {
       const getDetailAdmin = await ModelAdmin.findOne({
         where: {
@@ -218,7 +215,8 @@ class ControllerAdmin {
         name,
         username,
         role,
-        password: hashPassword(password)
+        password: hashPassword(password),
+        active,
       });
 
       responseJSON({ res, status: 200, data: updateCategory });
