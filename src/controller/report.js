@@ -66,7 +66,9 @@ class ControllerReport {
 
     try {
       const listTransaksi = await TransaksiCabangModel.findAll({
-        transaksi_status: "COMPLETE",
+        where: {
+          transaksi_status: "CREDIT",
+        },
         include: [
           {
             model: CabangModel,
@@ -120,7 +122,7 @@ class ControllerReport {
           ),
         }))
         .filter(
-          (filter) => filter.transaksi_info.transaksi_status === "COMPLETE"
+          (filter) => filter.transaksi_info.transaksi_status === "CREDIT"
         );
 
       const customer = getListCustomer.map((item) => ({
@@ -490,14 +492,12 @@ class ControllerReport {
         ],
         order: [["id", "DESC"]],
       });
-      const newGetListProductAllCategory = getListCategory?.map((item) => ({
-        id: item.id,
-        category_name: item.category_name,
-        listProduct: getListProductAll?.filter(
-          (filter) => filter?.categoryId === item.id
-        ),
-      }));
-      responseJSON({ res, status: 200, data: newGetListProductAllCategory });
+      // const newGetListProductAllCategory = getListCategory?.map((item) => ({
+      //   id: item.id,
+      //   category_name: item.category_name,
+      //   listProduct: ,
+      // }));
+      responseJSON({ res, status: 200, data: getListProductAll });
     } catch (error) {
       responseJSON({ res, status: 500, data: error });
     }
